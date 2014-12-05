@@ -15,7 +15,8 @@ public class Main {
     };
 
     public static void main(String[] args) {
-        String adr = v.test ? "F:/SoniPlaneNew/app/out/artifacts/SoniPlane" : System.getProperty("user.dir").replace("\\", "/");
+        String adr = FileUtil.getJarFolder();
+        adr = adr.substring(0, adr.length() - 2).replace("\\", "/");
         try {
             file.saveFile(adr +"/prefs.txt", new String(file.readFile(adr +"/prefs.txt")).replace("\r", "").getBytes());
         } catch (FileNotFoundException e) {
@@ -62,11 +63,11 @@ public class Main {
         String OS = System.getProperty("os.name");
         System.out.println(
                 "OS information dump; SoniPlane beta "+ v.version +"\n" +
-                "Launch directory:                   "+ adr +"\n" +
+                "Launch directory:                   "+ adr +" (user.dir: "+ System.getProperty("user.dir") +")\n"+
                 "OS version:                         "+ OS +" "+ System.getProperty("sun.arch.data.model")
                     +"-bit "+ System.getProperty("os.version") +"; "+ System.getProperty("os.arch")
                     +" "+ System.getProperty("sun.desktop") +"\n" +
-                "System language:                    "+System.getProperty("user.language") +" "+System.getProperty("user.country") +"\n"+
+                "System language:                    "+System.getProperty("user.language") +" "+ System.getProperty("user.country") +"\n"+
                 "Java version:                       "+ System.getProperty("java.version") +" "+
                     System.getProperty("java.runtime.version") +"\n" +
                 "Java virtual machine version:       "+ System.getProperty("java.vm.version") +" "+
@@ -74,7 +75,8 @@ public class Main {
                 "Java virtual machine information:   "+ System.getProperty("java.vm.info") +"\n"+
                 "Available Java memory:              "+ Runtime.getRuntime().maxMemory() +"\n" +
                 "Java heap size (may be inaccurate): "+ Runtime.getRuntime().freeMemory() +"\n" +
-                "Processors (cores):                 "+ Runtime.getRuntime().availableProcessors() +"\n");
+                "Processors (cores):                 "+ Runtime.getRuntime().availableProcessors() +"\n"+
+                "Database size(bytes):               "+ getDatabaseSize(new File(adr)) +"\n");
 
         for (File root : File.listRoots()) {
             System.out.println("File system root:                   "+ root.getAbsolutePath());
@@ -91,6 +93,17 @@ public class Main {
         System.out.println(OS.startsWith("Windows 9") ? "\nGais Windows 9 waz neva a thing!" :
                         OS.startsWith("Windows 2000") ? "\nOMG NEW MILLENNIUM AHAHAHAHA SHUT UP ALREADY!" : "\n");
         System.out.println("\nStandard output starts here:");
+    }
+
+    private static long getDatabaseSize(File f) {
+        long ret = 0;
+        if (f.isDirectory()) {
+            for (File c : f.listFiles()) {
+                ret += getDatabaseSize(c);
+            }
+        }
+
+        return ret + f.length();
     }
 
     private static boolean isReset(String adr) {

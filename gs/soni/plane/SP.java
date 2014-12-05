@@ -4,6 +4,7 @@ import gs.app.lib.application.App;
 import gs.app.lib.application.AppRun;
 import gs.app.lib.gfx.Graphics;
 import gs.app.lib.gfx.Sprite;
+import gs.app.lib.gfx.gfx;
 import gs.app.lib.math.bounds;
 import gs.app.lib.util.*;
 import gs.soni.plane.draw.*;
@@ -15,6 +16,7 @@ import gs.soni.plane.util.Event;
 import gs.soni.plane.web.UpdateChecker;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -58,7 +60,8 @@ public class SP extends AppRun {
     }
 
     public void create(){
-        v.LaunchAdr = System.getProperty("user.dir").replace("\\", "/");
+        v.LaunchAdr = FileUtil.getJarFolder();
+        v.LaunchAdr = v.LaunchAdr.substring(0, v.LaunchAdr.length() - 2).replace("\\", "/");
         v.prefs = v.LaunchAdr +"/prefs.txt";
         DrawQueue = new ArrayList<Drawable>();
         LogicList = new ArrayList<Logicable>();
@@ -82,6 +85,7 @@ public class SP extends AppRun {
 
         SetNormalTitle();
         CreateGUI();
+        SetWindowIcon();
         CreateMainMenu();
 
         Logic = new Timer("LogicTimer");
@@ -116,6 +120,10 @@ public class SP extends AppRun {
                 runlogic = false;
             }
         }, 1, 66);
+    }
+
+    private void SetWindowIcon() {
+        App.getJFrame().setIconImage(gfx.getImage(v.LaunchAdr +"/res/logo.png"));
     }
 
     private void autoSaveClean() {

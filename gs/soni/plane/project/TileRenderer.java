@@ -1,5 +1,6 @@
 package gs.soni.plane.project;
 
+import gs.soni.plane.SP;
 import gs.soni.plane.v;
 
 public class TileRenderer implements Runnable{

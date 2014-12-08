@@ -10,9 +10,9 @@ public class v {
     public static boolean test = false;
     public static String LaunchAdr;
     public static String prefs;
-    public static final String version =     "1.0.2";
+    public static final String version =     "1.0.3";
     public static final String projversion = "1.0";
-    public static final String prefversion = "1.0";
+    public static final String prefversion = "1.0.3";
     public static final String updateAdr =   "http://discocentral.digibase.ca/SPP/update/";
 
     /* gets start of OS name. Win, Mac, Linus, SunOS or FreeBSD (some others exist, but fuck them, nobody uses anyway, right? RIGHT?) */

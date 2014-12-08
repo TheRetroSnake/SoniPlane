@@ -282,14 +282,14 @@ public class SP extends AppRun {
                     AddProjMenu("Palette file", "", 0, 40, menu.GetScreenSize(), 20, Style.GetStyle("menu_left"), 1f,
                             new EventHandler[]{null, Event.ReturnEvent(Event.E_CE_FILE, Event.EP_MAX, "Palette file")}, 0xC0000004).
 
-                    AddAdjustButton("Transparent line", 0, 60, App.GetBounds().w / 2, 20, "0",
-                            Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                    AddProjMenu("Transparent line", "0", "\\D", 0, 60, App.GetBounds().w / 2, 20,
+                            Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                    AddAdjustButton("Transparent entry", App.GetBounds().w / 2, 60, App.GetBounds().w / 2, 20,
-                            "0", Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                    AddProjMenu("Transparent entry", "0", "\\D", App.GetBounds().w / 2, 60, App.GetBounds().w / 2, 20,
+                             Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                    AddAdjustButton("Palette line offset", 0, 80, App.GetBounds().w / 2, 20,
-                            "0", Style.GetStyle("menu_left"), 1f, null, menu.AT_TMIN | menu.AT_TEXT, "\\D").
+                    AddProjMenu("Palette line offset", "0", "\\D", 0, 80, App.GetBounds().w / 2, 20,
+                            Style.GetStyle("menu_left"), 1f, null, 0xE0000000).
 
                     AddProjMenu("Art file", "", 0, 100, menu.GetScreenSize(), 20, Style.GetStyle("menu_left"), 1f,
                             new EventHandler[]{null, Event.ReturnEvent(Event.E_CE_FILE, Event.EP_MAX, "Art file")}, 0xC0000004).
@@ -299,17 +299,17 @@ public class SP extends AppRun {
                             new EventHandler[]{null, Event.ReturnEvent(Event.E_CE_FILE, Event.EP_MAX, "Mapping file")}, 0xC0000004).
 
                     CompDropDown("Mapping compression", 0, 160, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, E_CE_MAPC).
-                    AddAdjustButton("Plane Width", App.GetBounds().w / 2, 180, App.GetBounds().w / 2, 20,
-                            "0", Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                    AddProjMenu("Plane Width", "0", "\\D", App.GetBounds().w / 2, 180, App.GetBounds().w / 2, 20,
+                             Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                    AddAdjustButton("Plane Height", 0, 180, App.GetBounds().w / 2, 20, "0",
-                            Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                    AddProjMenu("Plane Height", "0", "\\D", 0, 180, App.GetBounds().w / 2, 20,
+                            Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                    AddAdjustButton("Map offset", App.GetBounds().w / 2, 200, App.GetBounds().w / 2, 20,
-                            "0", Style.GetStyle("menu_left"), 1f, null, menu.AT_TMIN | menu.AT_TEXT, "\\D").
+                    AddProjMenu("Map offset", "0", "\\D",  App.GetBounds().w / 2, 200, App.GetBounds().w / 2, 20,
+                            Style.GetStyle("menu_left"), 1f, null, 0xE0000000).
 
-                    AddAdjustButton("Autosave delay (Minutes)", 0, 200, App.GetBounds().w / 2, 20, "0",
-                            Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                    AddProjMenu("Autosave delay (Minutes)", "0", "\\D", 0, 200, App.GetBounds().w / 2, 20,
+                            Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
                     AddMenu("done", "Done!", 80, 220, menu.GetScreenSize(), 40, Style.GetStyle("menu_center"), 1f, done).
                     AddMenu("cancel", "Cancel", 0, 220, 80, 40, Style.GetStyle("menu_center"), 1f,
@@ -355,15 +355,14 @@ public class SP extends AppRun {
                                 Style.GetStyle("menu_left"), 1f, new EventHandler[]{
                                         null, Event.ReturnEvent(Event.E_CE_FILE, Event.EP_MAX, "Palette file") }, 0xC0000004).
 
-                        AddAdjustButton("Transparent line", 0, 60, App.GetBounds().w / 2, 20, project.GetField("trans line", s),
-                                Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                        AddProjMenu("Transparent line", project.GetField("trans line", s), "\\D", 0, 60, App.GetBounds().w / 2, 20,
+                                Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                        AddAdjustButton("Transparent entry", App.GetBounds().w / 2, 60, App.GetBounds().w / 2, 20,
-                                project.GetField("trans off", s), Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                        AddProjMenu("Transparent entry", project.GetField("trans off", s), "\\D",
+                                App.GetBounds().w / 2, 60, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                        AddAdjustButton("Palette line offset", 0, 80, App.GetBounds().w / 2, 20,
-                                project.GetField("trans off", s, "0"), Style.GetStyle("menu_left"), 1f, null,
-                                menu.AT_TMIN | menu.AT_TEXT, "\\D").
+                        AddProjMenu("Palette line offset", project.GetField("trans off", s, "0"), "\\D",
+                                0, 80, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, null, 0xE0000000).
 
                         AddProjMenu("Art file", project.GetField("art file", s), 0, 100, menu.GetScreenSize(), 20,
                                 Style.GetStyle("menu_left"), 1f, new EventHandler[]{
@@ -376,17 +375,17 @@ public class SP extends AppRun {
 
                         CompDropDown("Mapping compression", 0, 160, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, E_CE_MAPC).
 
-                        AddAdjustButton("Plane Width", App.GetBounds().w / 2, 180, App.GetBounds().w / 2, 20,
-                                project.GetField("map width", s), Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                        AddProjMenu("Plane Width", project.GetField("map width", s), "\\D",
+                                App.GetBounds().w / 2, 180, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                        AddAdjustButton("Plane Height", 0, 180, App.GetBounds().w / 2, 20, project.GetField(
-                                "map height", s), Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                        AddProjMenu("Plane Height", project.GetField("map height", s), "\\D",
+                                0, 180, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                        AddAdjustButton("Map offset", App.GetBounds().w / 2, 200, App.GetBounds().w / 2, 20, project.GetField(
-                                "map offset", s), Style.GetStyle("menu_left"), 1f, null, menu.AT_TMIN | menu.AT_TEXT, "\\D").
+                        AddProjMenu("Map offset", project.GetField("map offset", s), "\\D", App.GetBounds().w / 2, 200,
+                                App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, null, 0xE0000000).
 
-                        AddAdjustButton("Autosave delay (Minutes)", 0, 200, App.GetBounds().w / 2, 20, "" + (Long.parseLong(
-                                project.GetField("autosave", s)) / 60000), Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                        AddProjMenu("Autosave delay (Minutes)", ""+ (Long.parseLong(project.GetField("autosave", s)) / 60000), "\\D",
+                                0, 200, App.GetBounds().w / 2, 20,  Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
                         AddMenu("done", "Done!", 80, 220, App.GetBounds().w - 80, 40, Style.GetStyle("menu_center"), 1f, done).
                         AddMenu("cancel", "Cancel", 0, 220, 80, 40, Style.GetStyle("menu_center"), 1f, cancel).
@@ -437,6 +436,28 @@ public class SP extends AppRun {
 
         // verify the project
         int y = 260, height = 20;
+
+        if(MenuList.GetBaseText("Autosave delay (Minutes)").replaceAll("\\D", "").equals("")){
+            y = AddWarn(""+ y, "Autosave delay must be a number!", y, height, null);
+        }
+        if(MenuList.GetBaseText("Map offset").replaceAll("\\D", "").equals("")){
+            y = AddWarn(""+ y, "Map offset must be a number!", y, height, null);
+        }
+        if(MenuList.GetBaseText("Plane Width").replaceAll("\\D", "").equals("")){
+            y = AddWarn(""+ y, "Plane Width must be a number!", y, height, null);
+        }
+        if(MenuList.GetBaseText("Plane Height").replaceAll("\\D", "").equals("")){
+            y = AddWarn(""+ y, "Plane Height must be a number!", y, height, null);
+        }
+        if(MenuList.GetBaseText("Transparent entry").replaceAll("\\D", "").equals("")){
+            y = AddWarn(""+ y, "Transparent entry must be a number!", y, height, null);
+        }
+        if(MenuList.GetBaseText("Transparent line").replaceAll("\\D", "").equals("")){
+            y = AddWarn(""+ y, "Transparent line must be a number!", y, height, null);
+        }
+        if(MenuList.GetBaseText("Palette file").replaceAll("\\D", "").equals("")){
+            y = AddWarn(""+ y, "Palette file must be a number!", y, height, null);
+        }
 
         if(v.CE_MAPC == null || v.CE_MAPC.equals("")){
             y = AddWarn(""+ y, "Mappings compression must not be null!", y, height, null);
@@ -576,37 +597,34 @@ public class SP extends AppRun {
             }
         };
 
-        MenuList = new menu().AddAdjustButton("Program title", 0, 0, App.GetBounds().w, 20,
-                project.GetField("title", s), Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT).
+        MenuList = new menu().AddProjMenu("Program title", project.GetField("title", s), 0, 0, App.GetBounds().w, 20,
+                Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                AddAdjustButton("Window width", 0, 20, App.GetBounds().w / 2, 20, project.GetField("windowWidth", s),
-                        Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                AddProjMenu("Window width", project.GetField("windowWidth", s), "\\D",
+                        0, 20, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                AddAdjustButton("Window height", App.GetBounds().w / 2, 20, App.GetBounds().w / 2, 20, project.GetField(
-                        "windowHeight", s), Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                AddProjMenu("Window height", project.GetField("windowHeight", s), "\\D",
+                        App.GetBounds().w / 2, 20, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                AddAdjustButton("Window X position", 0, 40, App.GetBounds().w / 2, 20, project.GetField("windowX", s),
-                        Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                AddProjMenu("Window X position", project.GetField("windowX", s), "\\D", 0, 40, App.GetBounds().w / 2, 20,
+                        Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                AddAdjustButton("Window Y position", App.GetBounds().w / 2, 40, App.GetBounds().w / 2, 20, project.GetField(
-                        "windowY", s), Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                AddProjMenu("Window Y position",project.GetField("windowY", s), "\\D",
+                        App.GetBounds().w / 2, 40, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                AddAdjustButton("Maximum autosave data (KB)", App.GetBounds().w / 2, 60, App.GetBounds().w / 2, 20,
-                        ""+ (Long.parseLong(project.GetField("asMaxSpace", s)) / 1024),
-                        Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                AddProjMenu("Maximum autosave data (KB)", ""+ (Long.parseLong(project.GetField("asMaxSpace", s)) / 1024), "\\D",
+                        App.GetBounds().w / 2, 60, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                AddAdjustButton("Delay to check autosave usage (Minutes)", 0, 60, App.GetBounds().w / 2, 20,
-                        ""+ (Long.parseLong(project.GetField("asUsageCheckDelay", s)) / 60000),
-                        Style.GetStyle("menu_left"), 1f, null, menu.AT_TEXT, "\\D").
+                AddProjMenu("Autosave Delete Delay (Minutes)",""+ (Long.parseLong(project.GetField("asUsageCheckDelay", s)) / 60000),"\\D",
+                        0, 60, App.GetBounds().w / 2, 20, Style.GetStyle("menu_left"), 1f, null, 0xC0000000).
 
-                AddCheckBox("Allow auto-removing autosave", 0, 80, App.GetBounds().w / 2, 20, Boolean.parseBoolean(
-                        project.GetField("asAutoDelete",s)), Style.GetStyle("menu_left"), 1f, null).
+                AddCheckBox("Allow auto-removing autosave", 0, 80, App.GetBounds().w / 2, 20,
+                        Boolean.parseBoolean(project.GetField("asAutoDelete",s)), Style.GetStyle("menu_left"), 1f, null).
 
-                AddCheckBox("Allow usage of internet", App.GetBounds().w / 2, 80, App.GetBounds().w / 2, 20, Boolean.parseBoolean(
-                        project.GetField("allowWebUtils",s)), Style.GetStyle("menu_left"), 1f, null).
+                AddCheckBox("Allow usage of internet", App.GetBounds().w / 2, 80, App.GetBounds().w / 2, 20,
+                        Boolean.parseBoolean(project.GetField("allowWebUtils",s)), Style.GetStyle("menu_left"), 1f, null).
 
-                AddMenu("cancel", "Cancel", 0, 100, 80, 40, Style.GetStyle("menu_center"), 1f,
-                        Event.ReturnEvent(Event.E_MENU, 0x10, null)).
+                AddMenu("cancel", "Cancel", 0, 100, 80, 40, Style.GetStyle("menu_center"), 1f, Event.ReturnEvent(Event.E_MENU, 0x1, null)).
                 AddMenu("reset", "Reset", App.GetBounds().w - 80, 100, 80, 40, Style.GetStyle("menu_center"), 1f, PREFR).
                 AddMenu("save", "Save", 80, 100, App.GetBounds().w - 160, 40, Style.GetStyle("menu_center"), 1f, PREFS);
 
@@ -671,6 +689,7 @@ public class SP extends AppRun {
 
     public static void ResetPrefs() {
         file.saveFile(v.prefs,
+            project.SetField("chooserDir", System.getProperty("user.home"),
             project.SetField("asAutoDelete", "true",
             project.SetField("asUsageCheckDelay", "300000",
             project.SetField("asMaxSpace", "10485760",
@@ -680,7 +699,7 @@ public class SP extends AppRun {
             project.SetField("windowHeight", "720",
             project.SetField("windowWidth", "1080",
             project.SetField("title", "SoniPlane",
-                ("version: " + v.prefversion + "\nreset: false\n").split("\r\n")))))))))), "\n");
+                ("version: "+ v.prefversion +"\nreset: false\n").split("\r\n"))))))))))), "\n");
     }
 
     public static void SavePrefs() {
@@ -688,7 +707,7 @@ public class SP extends AppRun {
             file.saveFile(v.prefs,
                 project.SetField("asAutoDelete", MenuList.GetBaseText("Allow auto-removing autosave"),
                 project.SetField("asUsageCheckDelay", ""+
-                    (Long.parseLong(MenuList.GetBaseText("Delay to check autosave usage (Minutes)")) * 60000),
+                    (Long.parseLong(MenuList.GetBaseText("Autosave Delete Delay (Minutes)")) * 60000),
                 project.SetField("asMaxSpace", ""+ (Long.parseLong(MenuList.GetBaseText("Maximum autosave data (KB)")) * 1024),
                 project.SetField("allowWebUtils", MenuList.GetBaseText("Allow usage of internet"),
                 project.SetField("windowY", MenuList.GetBaseText("Window Y position"),

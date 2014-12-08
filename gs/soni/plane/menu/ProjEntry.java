@@ -32,6 +32,9 @@ public class ProjEntry extends MenuEntry {
     private boolean ThisDisable = false;
     private boolean big;
     private TextBox tx;
+    private boolean isActive;
+
+    private final int maxBit = 28;
 
     public ProjEntry(String ID, String text, int x, int y, int width, int height, StyleItem style, float alpha,
                      EventHandler[] Event, int buttons) {
@@ -39,6 +42,7 @@ public class ProjEntry extends MenuEntry {
         this.ID = ID;
         this.text = text;
         this.alpha = alpha;
+        isActive = false;
 
         this.style = style;
         this.event = Event;
@@ -55,7 +59,38 @@ public class ProjEntry extends MenuEntry {
 
         big = (buttons & 0x40000000) != 0;
         if((buttons & 0x80000000) != 0){
-            tx = new TextBox(text, style, 0, text, false);
+            tx = new TextBox(text, style, "", (buttons & 0x20000000) != 0);
+        }
+
+        if(Event == null){
+            event = new EventHandler[31];
+        }
+    }
+
+    public ProjEntry(String ID, String text, String regex, int x, int y, int width, int height, StyleItem style, float alpha,
+                     EventHandler[] Event, int buttons) {
+
+        this.ID = ID;
+        this.text = text;
+        this.alpha = alpha;
+        isActive = false;
+
+        this.style = style;
+        this.event = Event;
+        btn = buttons & 0x3FFFFFFF;
+        lastBtn = -1;
+        Graphics.setFont(style.GetFont());
+
+        X = ProsX(x, null);
+        Y = ProsY(y, null);
+
+        Width = ProsWidth(width, null);
+        Height = ProsHeight(height, null);
+        spr = new Sprite();
+
+        big = (buttons & 0x40000000) != 0;
+        if((buttons & 0x80000000) != 0){
+            tx = new TextBox(text, style, regex, (buttons & 0x20000000) != 0);
         }
 
         if(Event == null){
@@ -72,13 +107,14 @@ public class ProjEntry extends MenuEntry {
         Height = ProsHeight(Height, m);
         int last = CheckButtonBounds();
 
-        if(tx != null && tx.isEditing()) {
+        if(tx != null && isActive) {
             ThisDisable = true;
             v.BlockControls = true;
             tx.logic();
 
             if (!tx.isEditing()) {
                 text = tx.GetText();
+                isActive = false;
                 SP.repaint();
             }
 
@@ -109,6 +145,7 @@ public class ProjEntry extends MenuEntry {
                 Event.SetEvent(event[0]);
                 if(tx != null){
                     tx.Edit();
+                    isActive = true;
                 }
                 SP.repaint();
             }
@@ -125,7 +162,7 @@ public class ProjEntry extends MenuEntry {
 
     private int CheckButtonBounds() {
         int x = 1, width = big ? Height & menu.NORMALBITS : (Height & menu.NORMALBITS) / 2;
-        for(int i = -1;i < 29;i ++){
+        for(int i = -1;i < maxBit;i ++){
             if((btn & ((2 << i) == 0 ? 1 : (2 << i))) != 0){
 
                 int xp = (X & menu.NORMALBITS) + Off.x + (Width & menu.NORMALBITS) - (x * width), yp = (Y & menu.NORMALBITS) + Off.y;
@@ -140,7 +177,7 @@ public class ProjEntry extends MenuEntry {
 
     private int CheckButtonOffsetBounds() {
         int x = 1, width = big ? Height & menu.NORMALBITS : (Height & menu.NORMALBITS) / 2;
-        for(int i = -1;i < 29;i ++){
+        for(int i = -1;i < maxBit;i ++){
             if((btn & ((2 << i) == 0 ? 1 : (2 << i))) != 0){
 
                 int xp = (X & menu.NORMALBITS) + Off.x + (Width & menu.NORMALBITS) - (x * width), yp = (Y & menu.NORMALBITS) + Off.y;
@@ -171,15 +208,14 @@ public class ProjEntry extends MenuEntry {
                         style.GetColor(), style.GetAlignment(), Width & menu.NORMALBITS);
 
             } else {
-                tx.draw(g);
-                tx.draw(g, new bounds((X & menu.NORMALBITS) + Off.x,
-                        (int) ((Y & menu.NORMALBITS) + Off.y + (((Height & menu.NORMALBITS) / 2) - (Graphics.GetTextHeight(text) / 2))),
-                        Width & menu.NORMALBITS, Height & menu.NORMALBITS));
+                tx.draw(g, new bounds((X & menu.NORMALBITS) + Off.x, (Y & menu.NORMALBITS) + Off.y,
+                        (X & menu.NORMALBITS) + Off.x + (Width & menu.NORMALBITS),
+                        (Y & menu.NORMALBITS) + Off.y +(Height & menu.NORMALBITS)));
             }
         }
 
         int x = 1, width = big ? Height & menu.NORMALBITS : (Height & menu.NORMALBITS) / 2;
-        for(int i = -1;i < 29;i ++){
+        for(int i = -1;i < maxBit;i ++){
             if((btn & ((2 << i) == 0 ? 1 : (2 << i))) != 0){
 
                 spr = new Sprite(GetImage(i + 1));

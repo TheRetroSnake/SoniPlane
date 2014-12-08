@@ -1,34 +1,67 @@
 package gs.soni.plane.draw;
 
+import gs.app.lib.application.App;
 import gs.app.lib.gfx.Graphics;
 import gs.app.lib.math.bounds;
 import gs.app.lib.util.KeyUtil;
-import gs.soni.plane.SP;
-import gs.soni.plane.util.Keys;
+import gs.soni.plane.util.Colors;
 import gs.soni.plane.util.Logicable;
 import gs.soni.plane.util.StyleItem;
 import gs.soni.plane.v;
 
+import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 public class TextBox implements Drawable, Logicable {
 
-    private boolean allowMinus;
     private String regex;
-    private int align;
-    private StyleItem style;
-    private String text;
+    private JTextField tx;
     private boolean isEditing;
+    private boolean minus;
+    private boolean neg;
 
-    public TextBox(String text, StyleItem style, int align, String regex, boolean allowMinus) {
-        this.text = text;
-        this.style = style;
-        this.align = align;
+    public TextBox(String text, StyleItem style, String regex, boolean allowMinus) {
+        tx = new JTextField(text);
+        tx.setBackground(Colors.GetColor("normal", 1f));
+        tx.setForeground(style.GetColor());
+        tx.setCaretColor(style.GetColor());
+        tx.setFont(style.GetFont());
+        tx.setBorder(null);
+        tx.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyUtil.ENTER) {
+                    isEditing = false;
+                    App.getJPanel().remove(tx);
+
+                } else if(e.getKeyCode() == KeyUtil.MINUS && minus){
+                    super.keyPressed(e);
+                    neg ^= true;
+
+                } else {
+                    super.keyPressed(e);
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+            }
+        });
+
         this.regex = regex;
-        this.allowMinus = allowMinus;
+        minus = allowMinus;
     }
 
     @Override
     public void draw(Graphics g) {
-        draw(g, new bounds(0, 0, 0, 0));
+
     }
 
     @Override
@@ -38,51 +71,37 @@ public class TextBox implements Drawable, Logicable {
 
     @Override
     public void logic() {
-        if(isEditing) {
-            if (Keys.isPressed(KeyUtil.BACKSPACE, true)) {
-                if(text.length() > 0) {
-                    text = text.substring(0, text.length() - 1);
-                    SP.repaint();
-                }
+        tx.setEnabled(isEditing);
 
-            } else if (Keys.isPressed(KeyUtil.DELETE, true)) {
-                text = "";
-                SP.repaint();
+        if(minus && tx.getText().contains("-")){
+            String t = tx.getText().replace("-", "");
 
-            } else if (Keys.isPressed(KeyUtil.ENTER, true)) {
-                isEditing = false;
-
-            } else {
-                String t = Keys.GetNextPress(true);
-                if(t.equals("-") && regex.equals("\\D") && allowMinus){
-                    if(text.startsWith("-")){
-                        text = text.substring(1, text.length());
-                        SP.repaint();
-
-                    } else {
-                        text = "-"+ text;
-                        SP.repaint();
-                    }
-                } else {
-                    text += t.replaceAll(regex, "");
-                    SP.repaint();
-                }
+            if(neg){
+                t = "-"+ t;
             }
+
+            tx.setText(t);
+            tx.setCaretPosition(t.length());
         }
     }
 
-    public void draw(Graphics g, bounds bounds) {
-        g.setColor(style.GetColor());
-        Graphics.setFont(style.GetFont());
-        g.drawText(text, bounds.x + 2, bounds.y, align, bounds.w - 4 - bounds.x);
+    public void draw(Graphics g, bounds b) {
+        tx.setBounds(b.x, b.y, b.w - b.x, b.h - b.y);
+        tx.repaint();
     }
 
     public void SetText(String text) {
-        this.text = text;
+        if(!regex.equals("")) {
+            text = text.replaceAll(regex, "");
+        }
+        tx.setText(text);
     }
 
     public String GetText() {
-        return text;
+        if(!regex.equals("")) {
+            tx.setText(tx.getText().replaceAll(regex, ""));
+        }
+        return tx.getText();
     }
 
     public boolean isEditing() {
@@ -91,5 +110,11 @@ public class TextBox implements Drawable, Logicable {
 
     public void Edit() {
         isEditing = true;
+        App.getJPanel().add(tx);
+        tx.requestFocus();
+
+        int sel = tx.getText().length();
+        tx.setSelectionStart(sel);
+        tx.setSelectionEnd(sel);
     }
 }

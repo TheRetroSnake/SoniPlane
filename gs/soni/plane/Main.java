@@ -28,8 +28,7 @@ public class Main {
             printOS(adr);
         }
 
-
-        if (FileUtil.exists(adr + "/prefs.txt") && !isReset(adr)) {
+        if (FileUtil.exists(adr + "/prefs.txt") && isReset(adr)) {
             String[] d = FileUtil.readString(adr + "/prefs.txt").split("\n");
 
             new App(new AppConfig("Loading the program",
@@ -107,6 +106,7 @@ public class Main {
     }
 
     private static boolean isReset(String adr) {
-        return !FileUtil.readString(adr +"/prefs.txt").contains("reset: false");
+        return FileUtil.readString(adr +"/prefs.txt").contains("reset: false") &&
+               FileUtil.readString(adr +"/prefs.txt").contains("version: "+ v.prefversion);
     }
 }

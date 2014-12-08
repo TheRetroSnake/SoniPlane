@@ -230,5 +230,9 @@ public class file {
         throw new NullPointerException(f + (new File(f).exists() ? " exists" : " does not exist") +", "+
                 (new File(f).exists() ? "is a directory" : "is not a directory"));
     }
+
+    public static String GetFolder(String file) {
+        return file.substring(0, file.lastIndexOf("\\"));
+    }
 }
 

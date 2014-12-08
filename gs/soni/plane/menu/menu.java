@@ -73,6 +73,26 @@ public class menu implements Drawable, Logicable {
         return this;
     }
 
+    public menu AddProjMenu(String ID, String text, String regex, int x, int y, int width, int height, StyleItem style,
+                            float alpha, EventHandler Event[], int btns) {
+
+        if(CheckIDUsed(ID)){
+            System.out.println("Warning: Menu ID \""+ ID +"\" already used!");
+            return this;
+        }
+
+        MenuEntry[] temp = menus;
+        menus = new MenuEntry[temp.length + 1];
+
+        System.arraycopy(temp, 0, menus, 0, temp.length);
+        if(btns == 0) {
+            menus[temp.length] = new MenuEntry(ID, text, x, y, width, height, style, alpha, Event[0]);
+        } else {
+            menus[temp.length] = new ProjEntry(ID, text, regex, x, y, width, height, style, alpha, Event, btns);
+        }
+        return this;
+    }
+
     private boolean CheckIDUsed(String ID) {
         for(MenuEntry m : menus){
             if(m.GetID().equals(ID)){
@@ -245,38 +265,6 @@ public class menu implements Drawable, Logicable {
 
         System.arraycopy(temp, 0, menus, 0, temp.length);
         menus[temp.length] = new DropDownMenu(ID, x, y, style, alpha, elementTexts, elementEvents);
-        return this;
-    }
-
-    public menu AddAdjustButton(String ID, int x, int y, int width, int height, String basevalue,
-                                StyleItem style, float alpha, EventHandler Event, int type) {
-
-        if(CheckIDUsed(ID)){
-            System.out.println("Warning: Menu ID \""+ ID +"\" already used!");
-            return this;
-        }
-
-        MenuEntry[] temp = menus;
-        menus = new MenuEntry[temp.length + 1];
-
-        System.arraycopy(temp, 0, menus, 0, temp.length);
-        menus[temp.length] = new AdjustButton(ID, x, y, width, height, basevalue, style, alpha, Event, type);
-        return this;
-    }
-
-    public menu AddAdjustButton(String ID, int x, int y, int width, int height, String basevalue,
-                                StyleItem style, float alpha, EventHandler Event, int type, String regex) {
-
-        if(CheckIDUsed(ID)){
-            System.out.println("Warning: Menu ID \""+ ID +"\" already used!");
-            return this;
-        }
-
-        MenuEntry[] temp = menus;
-        menus = new MenuEntry[temp.length + 1];
-
-        System.arraycopy(temp, 0, menus, 0, temp.length);
-        menus[temp.length] = new AdjustButton(ID, x, y, width, height, basevalue, style, alpha, Event, type, regex);
         return this;
     }
 

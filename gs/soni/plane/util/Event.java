@@ -148,14 +148,25 @@ public class Event {
                 return new EventHandler(E_CE_FILE, priority, string){
                     @Override
                     public void invoke(){
-                        new Thread(new FileOpen(new EventHandler(E_CE_FILE_, Event.EP_MAX, null){
-                            @Override
-                            public void invoke(){
-                                SP.GetMenuList().SetBaseText(field, getString());
-                                SP.repaint();
-                            }
+                        try {
+                            new Thread(new FileOpen(new EventHandler(E_CE_FILE_, Event.EP_MAX, null){
+                                @Override
+                                public void invoke(){
+                                    SP.GetMenuList().SetBaseText(field, getString());
+                                    try {
+                                        file.saveFile(v.prefs,
+                                                project.SetField("chooserDir", file.GetFolder(getString()),
+                                                        new String(file.readFile(v.prefs)).split("\n")), "\n");
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
+                                    SP.repaint();
+                                }
 
-                        }, "", "", System.getProperty("user.home"))).start();
+                            }, "", "", project.GetField("chooserDir", new String(file.readFile(v.prefs)).split("\n")))).start();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
                 };
 

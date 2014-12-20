@@ -10,17 +10,13 @@ public class v {
     public static boolean test = false;
     public static String LaunchAdr;
     public static String prefs;
-    public static final String version =     "1.0.3";
+    public static final String version =     "1.0.4";
     public static final String projversion = "1.0";
     public static final String prefversion = "1.0.3";
     public static final String updateAdr =   "http://discocentral.digibase.ca/SPP/update/";
 
     /* gets start of OS name. Win, Mac, Linus, SunOS or FreeBSD (some others exist, but fuck them, nobody uses anyway, right? RIGHT?) */
     public static final String OS = System.getProperty("os.name").split(" ")[0].replace("dows", "");
-
-    public static final int RENDERPR_MIN = 0;
-    public static final int RENDERPR_MAX = 8;
-    public static int mode =               0;
 
     public static boolean BlockControls = false;
     public static boolean IsClicked =     false;
@@ -36,14 +32,18 @@ public class v {
     public static String CE_MAPT;
 
     public static int PalLine =              0;
-    public static int DrawDebug =            0;
     public static int PalSelcted =           0;
     public static int TileSelected =        -1;
+    public static int TileSelectedEnd =     -1;
     public static int MapSelected =         -1;
+    public static int FillIncr =             0;
+
+    public static int TileRender =           Integer.MAX_VALUE;
     public static int PlaneMode =            0;
     public static int LineOff =              0;
-    public static int FillIncr =             0;
-    public static int TileRender =           Integer.MAX_VALUE;
+    public static final int RENDERPR_MIN =   0;
+    public static final int RENDERPR_MAX =   8;
+    public static int mode =                 0;
 
     public static bounds PlaneBounds;
     public static bounds TileBounds;

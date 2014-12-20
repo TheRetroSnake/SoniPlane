@@ -127,12 +127,22 @@ public class mappings {
     }
 
     public static void ShiftMap(int x, int y) {
+        ShiftMap(x, y, v.SelBounds);
+
+        v.SelBounds.y += y * tileLoader.GetHeight();
+        v.SelBounds.x += x * tileLoader.GetWidth();
+        v.SelBounds = limitBounds(v.SelBounds, v.PlaneBounds, new bounds(v.PlaneBounds.x, v.PlaneBounds.y, 0, 0));
+        v.SelBounds = CheckSize(v.SelBounds, v.PlaneBounds,
+                new bounds(tileLoader.GetHeight(), tileLoader.GetHeight(), 0, 0), new bounds(v.PlaneBounds.x, v.PlaneBounds.y, 0, 0));
+    }
+
+    public static void ShiftMap(int x, int y, bounds b) {
         int move = x + (y * v.mapSize.x), w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
         if (move < 0) {
 
             for (int o = 0; o < m.length; o++) {
                 int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
-                if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds) && o + move >= 0) {
+                if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), b) && o + move >= 0) {
                     m[o + move] = new map(m[o]);
                 }
             }
@@ -140,17 +150,11 @@ public class mappings {
         } else {
             for (int o = m.length - 1; o > 0; o--) {
                 int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
-                if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds) && o + move < m.length) {
+                if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), b) && o + move < m.length) {
                     m[o + move] = new map(m[o]);
                 }
             }
         }
-
-        v.SelBounds.y += y * tileLoader.GetHeight();
-        v.SelBounds.x += x * tileLoader.GetWidth();
-        v.SelBounds = limitBounds(v.SelBounds, v.PlaneBounds, new bounds(v.PlaneBounds.x, v.PlaneBounds.y, 0, 0));
-        v.SelBounds = CheckSize(v.SelBounds, v.PlaneBounds,
-                new bounds(tileLoader.GetHeight(), tileLoader.GetHeight(), 0, 0), new bounds(v.PlaneBounds.x, v.PlaneBounds.y, 0, 0));
     }
 
     private static bounds CheckSize(bounds bounds, bounds outBounds, bounds size, bounds off) {
@@ -217,12 +221,23 @@ public class mappings {
         }
     }
 
-    public static void Delete() {
+    public static void Delete(bounds b) {
         int w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
         for (int o = 0; o < m.length; o++) {
 
             int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
-            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds)) {
+            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), b)) {
+                m[o] = new map();
+            }
+        }
+    }
+
+    public static void Delete(bounds b, bounds no) {
+        int w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
+        for (int o = 0; o < m.length; o++) {
+
+            int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
+            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), b) && !isInside(new bounds((x_ * w), (y_ * h), 0, 0), no)) {
                 m[o] = new map();
             }
         }

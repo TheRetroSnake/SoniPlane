@@ -6,7 +6,6 @@ import gs.app.lib.math.bounds;
 import gs.app.lib.util.MouseUtil;
 import gs.soni.plane.SP;
 import gs.soni.plane.project.palette;
-import gs.soni.plane.util.Logicable;
 import gs.soni.plane.util.Mouse;
 import gs.soni.plane.util.Style;
 import gs.soni.plane.util.StyleItem;
@@ -14,38 +13,44 @@ import gs.soni.plane.v;
 
 import java.awt.*;
 
-public class palChange implements Drawable, Logicable {
+public class palChange implements Window {
     private final int Size = 16;
     private boolean draw;
+    private bounds bound;
+    private int sel = -1;
 
     public palChange(){
-        SP.addToRenderList(this);
+        bound = v.PalChgBounds;
+    }
+
+    @Override
+    public bounds getBounds() {
+        return bound;
     }
 
     @Override
     public void draw(Graphics g) {
-        if(((v.PalChgBounds.w / 5) * 4) - 50 > 0 && v.PalChgBounds.y + v.PalChgBounds.h > 0) {
+        bound = v.PalChgBounds;
+        if(((bound.w / 5) * 4) - 50 > 0 && bound.y + bound.h > 0) {
+            g.clearScreen(Color.BLACK);
             Sprite s = new Sprite();
             StyleItem st = Style.GetStyle("menu_center");
 
             // render big palette and red border next to it
-            s.setBounds(v.PalChgBounds.x, v.PalChgBounds.y, v.PalChgBounds.w / 5, v.PalChgBounds.h);
+            s.setBounds(0, 0, bound.w / 5, bound.h);
             s.setColor(palette.getPalette(v.PalLine, v.PalSelcted));
             g.fillRect(s);
-            s.setBounds(v.PalChgBounds.x + (v.PalChgBounds.w / 5), v.PalChgBounds.y, 2, v.PalChgBounds.h);
+            s.setBounds((bound.w / 5), 0, 2, bound.h);
             s.setColor(Color.RED);
             g.fillRect(s);
 
             // draw drag-thingies
-            s.setBounds(v.PalChgBounds.x + (v.PalChgBounds.w / 5) + 54 - (Size / 2), v.PalChgBounds.y + (v.PalChgBounds.h / 4) -
-                            (Size / 2), ((v.PalChgBounds.w / 5) * 4) - 50 + (Size / 2), Size);
+            s.setBounds((bound.w / 5) + 54 - (Size / 2), (bound.h / 4) - (Size / 2), ((bound.w / 5) * 4) - 50 + (Size / 2), Size);
             g.fillRect(s);
-            s.setBounds(v.PalChgBounds.x + (v.PalChgBounds.w / 5) + 54 - (Size / 2), v.PalChgBounds.y + ((v.PalChgBounds.h / 4) * 2) - 
-                            (Size / 2), ((v.PalChgBounds.w / 5) * 4) - 50 + (Size / 2), Size);
+            s.setBounds((bound.w / 5) + 54 - (Size / 2), ((bound.h / 4) * 2) - (Size / 2), ((bound.w / 5) * 4) - 50 + (Size / 2), Size);
             s.setColor(Color.GREEN);
             g.fillRect(s);
-            s.setBounds(v.PalChgBounds.x + (v.PalChgBounds.w / 5) + 54 - (Size / 2), v.PalChgBounds.y + ((v.PalChgBounds.h / 4) * 3) - 
-                            (Size / 2), ((v.PalChgBounds.w / 5) * 4) - 50 + (Size / 2), Size);
+            s.setBounds((bound.w / 5) + 54 - (Size / 2), ((bound.h / 4) * 3) - (Size / 2), ((bound.w / 5) * 4) - 50 + (Size / 2), Size);
             s.setColor(Color.BLUE);
             g.fillRect(s);
 
@@ -53,32 +58,29 @@ public class palChange implements Drawable, Logicable {
             // draw palette values
             Graphics.setFont(st.GetFont());
             g.setColor(st.GetColor());
-            int x = v.PalChgBounds.x + (v.PalChgBounds.w / 5) + 8;
+            int x = (bound.w / 5) + 8;
 
             String tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getRed())).toUpperCase();
-            int off1 = (int) (v.PalChgBounds.y + (v.PalChgBounds.h / 4) - (Graphics.GetTextHeight(tx) / 2));
+            int off1 = (int) ((bound.h / 4) - (Graphics.GetTextHeight(tx) / 2));
             g.drawText(tx, x, off1);
 
             tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getGreen())).toUpperCase();
-            int off2 = (int) (v.PalChgBounds.y + ((v.PalChgBounds.h / 4) * 2) - (Graphics.GetTextHeight(tx) / 2));
+            int off2 = (int) (((bound.h / 4) * 2) - (Graphics.GetTextHeight(tx) / 2));
             g.drawText(tx, x, off2);
 
             tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getBlue())).toUpperCase();
-            int off3 = (int) (v.PalChgBounds.y + ((v.PalChgBounds.h / 4) * 3) - (Graphics.GetTextHeight(tx) / 2));
+            int off3 = (int) (((bound.h / 4) * 3) - (Graphics.GetTextHeight(tx) / 2));
             g.drawText(tx, x, off3);
 
-            x = v.PalChgBounds.x + (v.PalChgBounds.w / 5) + 54 - (Size / 2);
-            PalSelector(new bounds(x, off1 + 2, ((v.PalChgBounds.w / 5) * 4) - 54, Size + 2),
+            x = (bound.w / 5) + 54 - (Size / 2);
+            PalSelector(new bounds(x, off1 + 2, ((bound.w / 5) * 4) - 54, Size + 2),
                     palette.getPalette(v.PalLine, v.PalSelcted).getRed(), s, g);
 
-            PalSelector(new bounds(x, off2 + 2, ((v.PalChgBounds.w / 5) * 4) - 54, Size + 2),
+            PalSelector(new bounds(x, off2 + 2, ((bound.w / 5) * 4) - 54, Size + 2),
                     palette.getPalette(v.PalLine, v.PalSelcted).getGreen(), s, g);
 
-            PalSelector(new bounds(x, off3 + 2, ((v.PalChgBounds.w / 5) * 4) - 54, Size + 2),
+            PalSelector(new bounds(x, off3 + 2, ((bound.w / 5) * 4) - 54, Size + 2),
                     palette.getPalette(v.PalLine, v.PalSelcted).getBlue(), s, g);
-
-            s.setColor(Color.RED);
-            v.DrawBounds(g, s, v.PalChgBounds, 2, 2);
         }
     }
 
@@ -100,31 +102,40 @@ public class palChange implements Drawable, Logicable {
     }
 
     @Override
-    public int renderPriority() {
-        return v.RENDERPR_MIN;
+    public void logic() {
+        int x = bound.x + (bound.w / 5) + 54 - (Size / 2);
+
+        String tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getRed())).toUpperCase();
+        int off1 = (int) (bound.y + (bound.h / 4) - (Graphics.GetTextHeight(tx) / 2));
+
+        tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getGreen())).toUpperCase();
+        int off2 = (int) (bound.y + ((bound.h / 4) * 2) - (Graphics.GetTextHeight(tx) / 2));
+
+        tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getBlue())).toUpperCase();
+        int off3 = (int) (bound.y + ((bound.h / 4) * 3) - (Graphics.GetTextHeight(tx) / 2));
+
+        CheckDraw(new bounds(x, off1 + 4, ((bound.w / 5) * 4) - 54, Size), 0);
+        CheckDraw(new bounds(x, off2 + 4, ((bound.w / 5) * 4) - 54, Size), 1);
+        CheckDraw(new bounds(x, off3 + 4, ((bound.w / 5) * 4) - 54, Size), 2);
     }
 
     @Override
-    public void logic() {
+    public void create() {
 
-        int x = v.PalChgBounds.x + (v.PalChgBounds.w / 5) + 54 - (Size / 2);
+    }
 
-        String tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getRed())).toUpperCase();
-        int off1 = (int) (v.PalChgBounds.y + (v.PalChgBounds.h / 4) - (Graphics.GetTextHeight(tx) / 2));
+    @Override
+    public boolean canUnFocus() {
+        return !(Mouse.IsHeld(MouseUtil.RIGHT) || Mouse.IsHeld(MouseUtil.MIDDLE) || Mouse.IsHeld(MouseUtil.LEFT));
+    }
 
-        tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getGreen())).toUpperCase();
-        int off2 = (int) (v.PalChgBounds.y + ((v.PalChgBounds.h / 4) * 2) - (Graphics.GetTextHeight(tx) / 2));
-
-        tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getBlue())).toUpperCase();
-        int off3 = (int) (v.PalChgBounds.y + ((v.PalChgBounds.h / 4) * 3) - (Graphics.GetTextHeight(tx) / 2));
-
-        CheckDraw(new bounds(x, off1 + 4, ((v.PalChgBounds.w / 5) * 4) - 54, Size), 0);
-        CheckDraw(new bounds(x, off2 + 4, ((v.PalChgBounds.w / 5) * 4) - 54, Size), 1);
-        CheckDraw(new bounds(x, off3 + 4, ((v.PalChgBounds.w / 5) * 4) - 54, Size), 2);
+    @Override
+    public boolean drawBound() {
+        return true;
     }
 
     private void CheckDraw(bounds bounds, int mode) {
-        if(Mouse.IsInArea(new bounds(bounds.x, bounds.y, bounds.x + bounds.w, bounds.y + bounds.h))) {
+        if(Mouse.IsInArea(new bounds(bounds.x, bounds.y, bounds.x + bounds.w, bounds.y + bounds.h)) && (canUnFocus() || sel == mode)) {
             if (Mouse.IsHeld(MouseUtil.LEFT) || Mouse.IsHeld(MouseUtil.RIGHT)) {
                 Color c = palette.getPalette(v.PalLine, v.PalSelcted);
                 int pal = palette.GetGrid((int) (((float)Mouse.GetPos().x - bounds.x) / bounds.w * 256));
@@ -142,21 +153,30 @@ public class palChange implements Drawable, Logicable {
                 }
 
                 palette.setPalette(v.PalLine, v.PalSelcted, c);
-                SP.repaintLater();
+                repaint();
                 v.TileRender = -1;
                 SP.startTileRender();
 
             } else {
+                sel = mode;
                 if(draw){
                     draw = false;
-                    SP.repaintLater();
+                    repaint();
                 }
             }
         }  else {
             if(!draw){
                 draw = true;
-                SP.repaintLater();
+                repaint();
             }
         }
+    }
+
+    private void repaint() {
+        SP.getWM().getPanelManager(this).repaint();
+    }
+
+    private void repaintAll() {
+        SP.getWM().repaintAll();
     }
 }

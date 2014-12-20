@@ -4,13 +4,16 @@ import gs.app.lib.application.App;
 import gs.app.lib.gfx.Graphics;
 import gs.app.lib.gfx.Sprite;
 import gs.app.lib.gfx.gfx;
+import gs.app.lib.math.bounds;
 import gs.soni.plane.SP;
 import gs.soni.plane.util.Logicable;
 import gs.soni.plane.util.Style;
 import gs.soni.plane.util.StyleItem;
 import gs.soni.plane.v;
 
-public class loading implements Drawable, Logicable {
+import java.awt.*;
+
+public class loading implements Window, PanelListener {
     private int e;
     private Sprite s;
     private int counter;
@@ -19,7 +22,11 @@ public class loading implements Drawable, Logicable {
 
     public loading(int event){
         e = event;
-        SP.addToRenderList(this);
+    }
+
+    @Override
+    public bounds getBounds() {
+        return new bounds(0, 1, App.GetBounds().w, App.GetBounds().h);
     }
 
     @Override
@@ -33,11 +40,6 @@ public class loading implements Drawable, Logicable {
             g.drawText("Loading", (int) ((App.GetBounds().w / 2) - (Graphics.GetTextWidth("Loading") / 2)), (App.GetBounds().h / 2) + 32);
             g.setAlpha(1f);
         }
-    }
-
-    @Override
-    public int renderPriority() {
-        return v.RENDERPR_MAX;
     }
 
     @Override
@@ -63,12 +65,64 @@ public class loading implements Drawable, Logicable {
             s.setAlpha(alpha);
 
             if (alpha < 0f) {
-                SP.rmvFromLogicList(this);
-                SP.rmvFromRenderList(this);
+                SP.getWM().rmvWindow(this);
                 SP.SetNormalTitle();
+                repaintAll();
+                SP.repaint();
                 return;
             }
         }
-        SP.repaintLater();
+
+        repaint();
+        SP.repaint();
+    }
+
+    @Override
+    public void create() {
+        SP.getWM().getPanelManager(this).addListener(this);
+        SP.getWM().getPanelManager(this).setBackground(new Color(0, 0, 0, 0));
+    }
+
+    @Override
+    public boolean canUnFocus() {
+        return false;
+    }
+
+    @Override
+    public boolean drawBound() {
+        return false;
+    }
+
+    private void repaint() {
+        SP.getWM().getPanelManager(this).repaint();
+    }
+
+    private void repaintAll() {
+        SP.getWM().repaintAll();
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public void draw() {
+
+    }
+
+    @Override
+    public void logic(boolean focus) {
+        logic();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void move(int x, int y) {
+
     }
 }

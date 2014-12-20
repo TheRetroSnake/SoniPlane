@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
 public class defActList {
-
     public static final int EXIT =       0;
     public static final int ABOUT =      1;
     public static final int SAVE =       2;
@@ -38,10 +37,6 @@ public class defActList {
     public static final int CLEARSEL =  29;
     public static final int INSERTSEL = 30;
     public static final int REMOVESEL = 31;
-    public static final int SHIFTSELU = 36;
-    public static final int SHIFTSELD = 37;
-    public static final int SHIFTSELL = 38;
-    public static final int SHIFTSELR = 39;
 
     public static ActionListener Get(int id){
         switch (id){
@@ -95,6 +90,7 @@ public class defActList {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         SP.SetNormalTitle();
+                        SP.getWM().destroy();
                         SP.ClearData();
                         SP.CreateGUI();
                         SP.CreateMainMenu();
@@ -267,7 +263,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.Delete();
+                        mappings.Delete(v.SelBounds);
                         SP.repaintLater();
                     }
                 };
@@ -288,42 +284,6 @@ public class defActList {
                     public void actionPerformed(ActionEvent e) {
                         mappings.Remove();
                         Event.projectMenu();
-                        SP.repaintLater();
-                    }
-                };
-
-            case SHIFTSELU:
-                return new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        mappings.ShiftMap(0, -1);
-                        SP.repaintLater();
-                    }
-                };
-
-            case SHIFTSELD:
-                return new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        mappings.ShiftMap(0, 1);
-                        SP.repaintLater();
-                    }
-                };
-
-            case SHIFTSELL:
-                return new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        mappings.ShiftMap(-1, 0);
-                        SP.repaintLater();
-                    }
-                };
-
-            case SHIFTSELR:
-                return new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        mappings.ShiftMap(1, 0);
                         SP.repaintLater();
                     }
                 };

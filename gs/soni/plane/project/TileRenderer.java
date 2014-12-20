@@ -18,6 +18,7 @@ public class TileRenderer implements Runnable{
 
             tileLoader.render(v.TileRender);
             v.TileRender ++;
+            SP.getWM().repaintAll();
 
             try {
                 Thread.sleep(1);

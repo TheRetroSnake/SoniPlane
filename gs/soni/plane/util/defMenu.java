@@ -36,10 +36,6 @@ public class defMenu {
     public static final int SEL_CLEAR =     29;
     public static final int SEL_REMOVE =    30;
     public static final int SEL_INSERT =    31;
-    public static final int SEL_SHIFTU =    36;
-    public static final int SEL_SHIFTD =    37;
-    public static final int SEL_SHIFTL =    38;
-    public static final int SEL_SHIFTR =    39;
 
     public static Menu GetMenu(int id){
         switch (id){
@@ -91,10 +87,6 @@ public class defMenu {
                 sel.add(GetMenuItem(SEL_PLINEM));
                 sel.add(GetMenuItem(SEL_TILINP));
                 sel.add(GetMenuItem(SEL_TILINM));
-                sel.add(GetMenuItem(SEL_SHIFTU));
-                sel.add(GetMenuItem(SEL_SHIFTD));
-                sel.add(GetMenuItem(SEL_SHIFTL));
-                sel.add(GetMenuItem(SEL_SHIFTR));
                 return sel;
 
         }
@@ -228,26 +220,6 @@ public class defMenu {
                 MenuItem insert = new MenuItem("Insert Tiles From Selection");
                 insert.addActionListener(defActList.Get(defActList.INSERTSEL));
                 return insert;
-
-            case SEL_SHIFTU:
-                MenuItem shiftu = new MenuItem("Shift Selection Up");
-                shiftu.addActionListener(defActList.Get(defActList.SHIFTSELU));
-                return shiftu;
-
-            case SEL_SHIFTD:
-                MenuItem shiftd = new MenuItem("Shift Selection Down");
-                shiftd.addActionListener(defActList.Get(defActList.SHIFTSELD));
-                return shiftd;
-
-            case SEL_SHIFTL:
-                MenuItem shiftl = new MenuItem("Shift Selection Left");
-                shiftl.addActionListener(defActList.Get(defActList.SHIFTSELL));
-                return shiftl;
-
-            case SEL_SHIFTR:
-                MenuItem shiftr = new MenuItem("Shift Selection Right");
-                shiftr.addActionListener(defActList.Get(defActList.SHIFTSELR));
-                return shiftr;
 
         }
 

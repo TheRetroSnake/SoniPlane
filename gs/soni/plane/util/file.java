@@ -234,5 +234,16 @@ public class file {
     public static String GetFolder(String file) {
         return file.substring(0, file.lastIndexOf("\\"));
     }
+
+    public static boolean IsRightFolder(String folder) {
+        for(File f : new File(folder).listFiles()){
+            if(f != null && f.isFile()){
+                if(f.getName().equals("Downloader.jar")){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
 

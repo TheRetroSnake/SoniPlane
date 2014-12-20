@@ -47,6 +47,10 @@ public class UpdateChecker implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            if(v.mode != 0){
+                return;
+            }
         }
     }
 

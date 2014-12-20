@@ -25,137 +25,193 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class SP extends AppRun {
-
+    /* quick boolean check to reset program preferences when needed */
     private boolean resetPrefs;
+    /* draw and logic queues */
     private static ArrayList<Drawable> DrawQueue;
     private static ArrayList<Logicable> LogicList;
+    /* timer to call logic at interval rate */
     private static Timer Logic;
+    /* menu list for all program menus */
     private static menu MenuList;
+    /* special menu list when warning users for incorrect information in project creation/editing */
     private static menu WarnMenu;
+    /* thread for autosave, update checking and saving project */
     public static Thread SaveThread;
+    /* quick boolean to resize screen after preferences change */
     private static boolean resizePref = false;
+    /* flag used to make sure logic is not ran while exiting program
+     * (makes sure the program wont close without issues and no damage to files) */
     private static boolean runlogic;
 
+    /* initialize the program */
     public SP(String[] arg, boolean resetPref){
+        /* copy if we should reset preferences */
         resetPrefs = resetPref;
 
+        /* if more than 1 argument */
         if(arg.length >= 2){
+            /* if we should open a project */
             if(arg[0].equals("-open")){
                 Event.SetEvent(Event.ReturnEvent(Event.E_PROJ_LOAD, Event.EP_MAX, arg[1]));
 
+            /* if we should reconfigure a project */
             } else if(arg[0].equals("-edit")){
                 v.project = arg[1];
                 Event.SetEvent(Event.ReturnEvent(Event.E_CONF, Event.EP_MAX, ""));
 
-            }
-        } else if(arg.length > 0 && arg[0].equals("-new")){
-            ClearData();
-            if(arg.length >= 2){
+            /* if we should create a new project */
+            } else if(arg[0].equals("-new")){
+                ClearData();
                 CreateEditor(arg[1]);
-            } else {
-                CreateEditor("");
+                repaintLater();
             }
+        /* if argument length is more than 0 and argument and argument 0 is "-new"
+         * create a new project */
+        } else if(arg.length > 0 && arg[0].equals("-new")) {
+            ClearData();
+            CreateEditor("");
             repaintLater();
         }
     }
 
+    /* get windowManager if one is in logicable list */
     public static windowManager getWM() {
+        /* run for all logicable targets */
         for(Logicable L : LogicList.toArray(new Logicable[LogicList.size()])){
+            /* if logicable is instance of windowManager */
             if(L instanceof windowManager){
+                /* return the windowManager */
                 return (windowManager) L;
             }
         }
 
+        /* no windowManager is present; return null instead */
         return null;
     }
 
+    /* create the program */
     public void create(){
+        /* get launching address */
         v.LaunchAdr = FileUtil.getJarFolder().replace("\\", "/");
+        /* does the folder contain SoniPlane.jar (aka make sure we don't open in C:/Windows/System32 or similar incorrect folders */
         if(file.IsRightFolder(v.LaunchAdr)) {
+            /* save preferences address to memory */
             v.prefs = v.LaunchAdr +"/prefs.txt";
+            /* create queues */
             DrawQueue = new ArrayList<Drawable>();
             LogicList = new ArrayList<Logicable>();
 
+            /* create folders used in the program */
             FileUtil.mkdir(v.LaunchAdr +"/temp");
             FileUtil.mkdir(v.LaunchAdr +"/projects");
             FileUtil.mkdir(v.LaunchAdr +"/autosave");
 
+            /* if should, reset the preferences */
             if (resetPrefs) {
                 ResetPrefs();
             }
 
+            /* replace all /r/n sequences with /n */
             try {
                 project.RemoveRN();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
+
+            /* create the updateChecker */
             SaveThread = new Thread(new UpdateChecker(), "UpdateChecker");
             SaveThread.start();
             resizePref = true;
 
+            /* set program title */
             SetNormalTitle();
+            /* create the GUI for the program */
             CreateGUI();
+            /* set display icon */
             SetWindowIcon();
+            /* create main menu */
             CreateMainMenu();
 
+            /* create a new timer for logic stuff */
             Logic = new Timer("LogicTimer");
             Logic.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
+                    /* set running logic to true */
                     runlogic = true;
 
-                    ArrayList<Logicable> nowLogic = (ArrayList<Logicable>) LogicList.clone();
-                    for (Logicable L : nowLogic) {
+                    /* cycle through logicable objects and run their logic */
+                    for (Logicable L : LogicList.toArray(new Logicable[LogicList.size()])) {
                         L.logic();
                     }
 
+                    /* handle events and get is clicked status */
                     v.IsClicked = Mouse.IsClicked(true);
                     Event.HandleEvent();
+
+                    /* check if BlockControls should be set back to false */
                     if (v.UnlockEndFrame && !v.IsClicked) {
                         v.BlockControls = false;
                         v.UnlockEndFrame = false;
                     }
 
+                    /* check controls (to be set to obsolete soon) */
                     if (v.mode == Event.E_PROJ) {
                         CheckControl();
                     }
 
+                    /* clear pressed buttons */
                     MouseUtil.clearPresses();
                     KeyUtil.clearPresses();
 
+                    /* check autosaving and removing autosaves if too much saves */
                     if (v.mode == Event.E_PROJ) {
                         autoSave();
                         autoSaveClean();
                     }
+                    /* set logic to be finished */
                     runlogic = false;
                 }
             }, 1, 66);
         }
     }
 
+    /* set icon for the program */
     private void SetWindowIcon() {
         App.getJFrame().setIconImage(gfx.getImage(v.LaunchAdr +"/res/logo.png"));
     }
 
+    /* clean autosaves if too much autosaves exist */
     private void autoSaveClean() {
+        /* if we should check right now */
         if(v.AutoSaveDel > 0 && System.currentTimeMillis() - v.LastSaveDel > v.AutoSaveDel){
+            /* if too much data is stored */
             if(file.getFolderSize(v.LaunchAdr +"/autosave") > v.MaxASSize){
 
+                /* wait until savethread is not running */
                 while(SaveThread != null && SaveThread.isAlive());
+                /* start new thread which will delete saves */
                 SaveThread = new Thread(new SaveDel(v.MaxASSize / 2), "SaveDeleter");
                 SaveThread.start();
+                /* update the last time we deleted saves */
                 v.LastSaveDel = System.currentTimeMillis();
             }
         }
     }
 
+    /* autosave the project */
     private void autoSave() {
+        /* check if we should save right now */
         if(v.AutoSave > 0 && System.currentTimeMillis() - v.LastSave > v.AutoSave){
             try {
+                /* wait until save thread stopped */
                 while(SaveThread != null && SaveThread.isAlive());
+                /* make a new thread to save current progress */
                 SaveThread = new Thread(new Save("as"+ (System.currentTimeMillis() / 1000) +"-"+
-                        project.GetField("name", new String(file.readFile(v.project)).split("\r\n")), true), "AutoSave");
+                        project.GetField("name", new String(file.readFile(v.project)).split("\n")), true), "AutoSave");
                 SaveThread.start();
+                /* update the last time we checked saves */
                 v.LastSave = System.currentTimeMillis();
 
             } catch (FileNotFoundException e) {
@@ -648,7 +704,7 @@ public class SP extends AppRun {
     }
 
     private static void DrawDrawQueue(Graphics g) {
-        ArrayList<Drawable> nowRender = (ArrayList<Drawable>) DrawQueue.clone();
+        Drawable[] nowRender = DrawQueue.toArray(new Drawable[DrawQueue.size()]);
 
         for(int p = v.RENDERPR_MIN;p <= v.RENDERPR_MAX && DrawQueue != null;p ++) {
             for (Drawable D : nowRender) {
@@ -661,7 +717,7 @@ public class SP extends AppRun {
 
     public void dispose(){
         Logic.cancel();
-        while (runlogic);
+        while(runlogic);
         while(SaveThread != null && SaveThread.isAlive());
 
         try {
@@ -944,16 +1000,22 @@ public class SP extends AppRun {
         }
     }
 
+    /* remove autosaves, reset preferences and exit */
     private void ResetProgram() {
         try {
+            /* if autosave folder exists, remove its contents */
             if(new File(v.LaunchAdr +"/autosave").exists()) {
                 file.delete(v.LaunchAdr +"/autosave");
             }
+
+            /* delete preferences */
             file.delete(v.prefs);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        /* exit program */
         exit();
     }
 }

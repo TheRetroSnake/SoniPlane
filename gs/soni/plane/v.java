@@ -15,7 +15,7 @@ public class v {
      * Used to convenience and future possibility of making preferences read from universal address */
     public static String prefs;
     /* version number constant */
-    public static final String version =     "1.0.4";
+    public static final String version =     "1.0.4.1";
     /* project version constant */
     public static final String projversion = "1.0";
     /* preferences version constant */

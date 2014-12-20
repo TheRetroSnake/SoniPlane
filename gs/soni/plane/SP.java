@@ -62,16 +62,14 @@ public class SP extends AppRun {
 
             /* if we should create a new project */
             } else if(arg[0].equals("-new")){
-                ClearData();
-                CreateEditor(arg[1]);
-                repaintLater();
+                v.project = arg[1];
+                Event.SetEvent(Event.ReturnEvent(Event.E_CONF, Event.EP_MAX, ""));
             }
         /* if argument length is more than 0 and argument and argument 0 is "-new"
          * create a new project */
         } else if(arg.length > 0 && arg[0].equals("-new")) {
-            ClearData();
-            CreateEditor("");
-            repaintLater();
+            v.project = "";
+            Event.SetEvent(Event.ReturnEvent(Event.E_CONF, Event.EP_MAX, ""));
         }
     }
 

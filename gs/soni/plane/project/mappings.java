@@ -213,23 +213,23 @@ public class mappings {
         }
     }
 
-    public static void TileIndex(int add) {
+    public static void TileIndex(int add, bounds sel) {
         int w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
         for (int o = 0; o < m.length; o++) {
 
             int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
-            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds)) {
+            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), sel)) {
                 m[o].tileOff += add;
             }
         }
     }
 
-    public static void TileFlip(boolean Xflip, boolean Yflip) {
+    public static void TileFlip(boolean Xflip, boolean Yflip, bounds sel) {
         int w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
         for (int o = 0; o < m.length; o++) {
 
             int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
-            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds)) {
+            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), sel)) {
                 m[o].XFlip ^= Xflip;
                 m[o].YFlip ^= Yflip;
             }
@@ -240,11 +240,11 @@ public class mappings {
 
     }
 
-    public static void PalIndex(int add) {
+    public static void PalIndex(int add, bounds sel) {
         int w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
         for (int o = 0; o < m.length; o++) {
             int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
-            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds)) {
+            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), sel)) {
 
                 m[o].palLine = (m[o].palLine + add) % palette.getPalette().length;
                 if(m[o].palLine - v.LineOff < 0){
@@ -254,24 +254,24 @@ public class mappings {
         }
     }
 
-    public static void ChangePlane() {
+    public static void ChangePlane(bounds sel) {
         int w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
         for (int o = 0; o < m.length; o++) {
             int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
-            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds)) {
+            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), sel)) {
                 m[o].HighPlane ^= true;
             }
         }
     }
 
-    public static void Remove() {
+    public static void Remove(bounds sel) {
         int w = tileLoader.GetWidth(), h = tileLoader.GetHeight(), apos = 0;
         int[] rmv = new int[m.length];
         Arrays.fill(rmv, -1);
         for (int o = 0; o < m.length; o++) {
 
             int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
-            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds)) {
+            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), sel)) {
                 rmv[apos] = o;
                 apos++;
             }
@@ -284,17 +284,16 @@ public class mappings {
         }
 
         Adjust();
-        v.SelBounds = null;
     }
 
-    public static void Insert() {
+    public static void Insert(bounds sel) {
         int w = tileLoader.GetWidth(), h = tileLoader.GetHeight(), apos = 0;
         boolean[] ins = new boolean[m.length];
         Arrays.fill(ins, false);
         for (int o = 0; o < m.length; o++) {
 
             int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
-            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds)) {
+            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), sel)) {
                 ins[o] = true;
             }
         }
@@ -308,16 +307,14 @@ public class mappings {
                 off = len;
             }
         }
-
-        v.SelBounds = null;
     }
 
-    public static void Fill(int tile, int inc) {
+    public static void Fill(int tile, int inc, bounds sel) {
         int w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
         for (int o = 0; o < m.length; o++) {
             int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
 
-            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds)) {
+            if (isInside(new bounds((x_ * w), (y_ * h), 0, 0), sel)) {
                 m[o].tileOff = tile;
                 tile += inc;
             }

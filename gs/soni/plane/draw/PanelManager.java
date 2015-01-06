@@ -244,6 +244,7 @@ public class PanelManager extends JPanel {
             p.logic(isFocus());
         }
 
+        /* if not moving or resizing, use normal logic */
         if(moving == null && resizing == 0) {
         /* if is focused, mouse is in the window, and is not minimized */
             if (isFocus() && Mouse.IsInArea(win.getBounds().toCoordinates()) && !minimized) {
@@ -265,11 +266,15 @@ public class PanelManager extends JPanel {
                 toCursor_(CursorList.get(Cursor.HAND_CURSOR));
             }
         } else {
+            /* if we are not resizing, move the window */
             if(resizing == 0) {
                 moveWindow();
+
+            /* if we are not moving, resize window */
             } else if(moving == null){
                 resizeWindow();
 
+            /* if doing both, cancel them */
             } else {
                 moving = null;
                 resizing = 0;
@@ -277,86 +282,108 @@ public class PanelManager extends JPanel {
         }
     }
 
+    /* resize the window */
     private void resizeWindow() {
-        boolean repaint = false, width = false, height = false;
-        int w = win.getBounds().w, h = win.getBounds().h, ow = 0, oh = 0;
+        /* variables used */
+        boolean repaint = false;
+        int w = win.getBounds().w, h = win.getBounds().h, ow = Integer.MAX_VALUE, oh = Integer.MAX_VALUE;
+
+        /* if resizing from right */
         if ((resizing & 1) != 0) {
             repaint = true;
             w = MouseUtil.getX() - win.getBounds().x;
 
+        /* if resizing from the left */
         } else if ((resizing & 2) != 0) {
             repaint = true;
-            width = true;
             w -= MouseUtil.getX() - win.getBounds().x;
             ow = win.getBounds().w;
         }
 
+        /* if resizing from top */
         if ((resizing & 4) != 0) {
             repaint = true;
-            height = true;
             h -= (MouseUtil.getY() + UPPER_HEIGHT - BOUNDS_SIZE) - win.getBounds().y;
             oh = win.getBounds().h;
 
+        /* if resizing from bottom */
         } else if ((resizing & 8) != 0) {
             repaint = true;
             h = MouseUtil.getY() - win.getBounds().y;
         }
 
+        /* if we should repaint */
         if (repaint) {
+            /* call resize on the panel and fix the size */
             win.resize(w, h);
-            SP.getWM().forceOnScreen(win);
             fixSize();
 
-            if(width){
+            /* if the x-pos should be changed */
+            if(ow != Integer.MAX_VALUE){
                 win.getBounds().x -= win.getBounds().w - ow;
             }
 
-            if(height){
+            /* if the y-pos should be changed */
+            if(oh != Integer.MAX_VALUE){
                 win.getBounds().y -= win.getBounds().h - oh;
             }
 
+            /* force on screen and repaint */
             SP.getWM().forceOnScreen(win);
             SP.repaint();
             repaint();
         }
 
+        /* if not pressing left mouse button */
         if (!Mouse.IsHeld(MouseUtil.LEFT)) {
             /* tell listeners window is resize */
             for(PanelListener p : panL){
                 p.move(win.getBounds().w, win.getBounds().h);
             }
 
+            /* stop resizing */
             resizing = 0;
+            /* reset the display and repaint */
             resetDisplay();
             SP.repaint();
         }
     }
 
+    /* make sure the panel is not too big */
     private void fixSize() {
+        /* if height is too small, change it back */
         if(win.getBounds().h < 1){
             win.getBounds().h = 1;
 
+        /* if height is too high, change to max */
         } else if(win.getBounds().h > App.GetBounds().h - BOUNDS_SIZE - UPPER_HEIGHT){
             win.getBounds().h = App.GetBounds().h - BOUNDS_SIZE - UPPER_HEIGHT;
         }
 
+        /* if is not width enough, change to normal width */
         if(win.getBounds().w < win.getBounds().w - getLastButtonPos() + (UPPER_HEIGHT * 2) + (BOUNDS_SIZE * 2)){
             win.getBounds().w = win.getBounds().w - getLastButtonPos() + (UPPER_HEIGHT * 2) + (BOUNDS_SIZE * 2);
 
+        /* if is too wide, change to max size */
         } else if(win.getBounds().w > App.GetBounds().w - (BOUNDS_SIZE * 2)){
             win.getBounds().w = App.GetBounds().w - (BOUNDS_SIZE * 2);
         }
     }
 
+    /* move the window */
     private void moveWindow() {
+        /* set new positions */
         win.getBounds().x = MouseUtil.getPoint().x - App.GetBounds().x - moving.x;
         win.getBounds().y = MouseUtil.getPoint().y - App.GetBounds().y - moving.y;
 
+        /* tell the panel we moved */
         win.move(win.getBounds().x, win.getBounds().y);
+        /* force on screen and repaint */
         SP.getWM().forceOnScreen(win);
         SP.repaintLater();
         repaintLater();
 
+        /* if not pressing left mouse button */
         if (!Mouse.IsHeld(MouseUtil.LEFT)) {
             moving = null;
             /* tell listeners window is moved */
@@ -364,20 +391,27 @@ public class PanelManager extends JPanel {
                 p.move(win.getBounds().x, win.getBounds().y);
             }
 
+            /* reset display and repaint */
             resetDisplay();
             SP.repaint();
         }
     }
 
+    /* check if we need to move the window */
     private boolean checkMove() {
+        /* if is focused and mouse is in the header */
         if(focus && Mouse.IsInArea(new bounds(getX() + BOUNDS_SIZE, getY() + BOUNDS_SIZE,
                 getLastButtonPos() - BOUNDS_SIZE, UPPER_HEIGHT - BOUNDS_SIZE).toCoordinates())){
 
+            /* if is pressing left mouse button */
             if(Mouse.IsClicked(MouseUtil.LEFT)){
+                /* create the grab2 cursor */
                 toCursor_(CursorList.get(CursorList.GRAB2_CURSOR));
+                /* make new bounds with relative cursor position */
                 moving = new bounds(MouseUtil.getX() - getBound().x, MouseUtil.getY() - getBound().y, 0, 0);
 
             } else {
+                /* create grab cursor */
                 toCursor_(CursorList.get(CursorList.GRAB_CURSOR));
             }
             return true;
@@ -385,13 +419,18 @@ public class PanelManager extends JPanel {
         return false;
     }
 
+    /* check if we should resize */
     private boolean checkResize() {
+        /* get outer and inner boundaries */
         bounds outer = getWindowBounds().toCoordinates(),
                 inner = new bounds(outer.x + BOUNDS_SIZE, outer.y + BOUNDS_SIZE, outer.w - BOUNDS_SIZE, outer.h - BOUNDS_SIZE);
 
+        /* if is focused, is not minimized and is inside outer bounds but not inner */
         if(focus && !minimized && Mouse.IsInArea(outer) && !Mouse.IsInArea(inner)){
+            /* get cursor type */
             int type = setResizeCursor(MouseUtil.getX() - outer.x, MouseUtil.getY() - outer.y);
 
+            /* if left mouse button is clicked, resize */
             if(Mouse.IsClicked(MouseUtil.LEFT)){
                 resizing = type;
             }
@@ -400,25 +439,34 @@ public class PanelManager extends JPanel {
         return false;
     }
 
+    /* set cursor based on position in resizing */
     private int setResizeCursor(int cursorX, int cursorY) {
+        /* set offset to 0 and create table for types */
         int off = 0;
         int[] types = new int[]{
                 Cursor.DEFAULT_CURSOR,  Cursor.E_RESIZE_CURSOR, Cursor.W_RESIZE_CURSOR, 0,
                 Cursor.N_RESIZE_CURSOR, Cursor.NE_RESIZE_CURSOR, Cursor.NW_RESIZE_CURSOR, 0,
                 Cursor.S_RESIZE_CURSOR, Cursor.SE_RESIZE_CURSOR, Cursor.SW_RESIZE_CURSOR, };
 
+        /* if left side */
         if(cursorX <= BOUNDS_SIZE){
             off += 2;
+
+        /* if right side */
         } else if(cursorX >= getWindowBounds().w - BOUNDS_SIZE){
             off ++;
         }
 
+        /* if upper side */
         if(cursorY <= BOUNDS_SIZE){
             off += 4;
+
+        /* if lower size */
         } else if(cursorY >= getWindowBounds().h - BOUNDS_SIZE){
             off += 8;
         }
 
+        /* set cursor and return offset */
         toCursor_(CursorList.get(types[off]));
         return off;
     }
@@ -608,12 +656,15 @@ public class PanelManager extends JPanel {
 
     public void toCursor(Cursor c) {
         if(!getCursor().getName().equals(c.getName())) {
+            /* if the cursor isn't the old cursor, set it */
             setCursor(c);
         }
     }
 
+    /* set cursor and check if the panel overrides cursor type */
     private void toCursor_(Cursor c) {
         if(!win.cursorOverride()){
+            /* if window doesn't override cursor, set cursor */
             toCursor(c);
         }
     }

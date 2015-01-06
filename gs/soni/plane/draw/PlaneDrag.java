@@ -23,14 +23,14 @@ public class PlaneDrag {
         my = Mouse.GetPos().y;
     }
 
-    public void set(boolean delete) {
+    public void set(boolean delete, plane p) {
         int w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
         mappings.ShiftMap((end.x / w) - (origin.x / w), (end.y / h) - (origin.y / h), origin);
         if(delete){
             mappings.Delete(origin, end);
         }
 
-        v.SelBounds = new bounds(end);
+        p.selBounds = new bounds(end);
     }
 
     public void logic(bounds off, boolean mouse, float mul) {

@@ -1,8 +1,11 @@
 package gs.soni.plane.util;
 
 import gs.app.lib.application.App;
+import gs.app.lib.math.bounds;
 import gs.app.lib.util.Browser;
 import gs.soni.plane.SP;
+import gs.soni.plane.draw.PanelManager;
+import gs.soni.plane.draw.plane;
 import gs.soni.plane.project.Save;
 import gs.soni.plane.project.mappings;
 import gs.soni.plane.project.project;
@@ -137,7 +140,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.ChangePlane();
+                        mappings.ChangePlane(getPlane().selBounds);
                         SP.repaintLater();
                     }
                 };
@@ -146,7 +149,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.TileFlip(true, false);
+                        mappings.TileFlip(true, false, getPlane().selBounds);
                         SP.repaintLater();
                     }
                 };
@@ -155,7 +158,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.TileFlip(false, true);
+                        mappings.TileFlip(false, true, getPlane().selBounds);
                         SP.repaintLater();
                     }
                 };
@@ -164,7 +167,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.PalIndex(1);
+                        mappings.PalIndex(1, getPlane().selBounds);
                         SP.repaintLater();
                     }
                 };
@@ -173,7 +176,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.PalIndex(-1);
+                        mappings.PalIndex(-1, getPlane().selBounds);
                         SP.repaintLater();
                     }
                 };
@@ -182,7 +185,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        v.SelBounds = null;
+                        getPlane().selBounds = null;
                         App.getJFrame().getMenuBar().getMenu(defMenu.MENU_SEL).setEnabled(false);
                         SP.repaintLater();
                     }
@@ -192,7 +195,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.TileIndex(1);
+                        mappings.TileIndex(1, getPlane().selBounds);
                         SP.repaintLater();
                     }
                 };
@@ -201,7 +204,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.TileIndex(-1);
+                        mappings.TileIndex(-1, getPlane().selBounds);
                         SP.repaintLater();
                     }
                 };
@@ -210,7 +213,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.Fill(v.TileSelected, v.FillIncr);
+                        mappings.Fill(v.TileSelected, v.FillIncr, getPlane().selBounds);
                         SP.repaintLater();
                     }
                 };
@@ -219,7 +222,7 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.Delete(v.SelBounds);
+                        mappings.Delete(getPlane().selBounds);
                         SP.repaintLater();
                     }
                 };
@@ -228,7 +231,8 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.Insert();
+                        mappings.Insert(getPlane().selBounds);
+                        getPlane().selBounds = null;
                         Event.projectMenu();
                         SP.repaintLater();
                     }
@@ -238,7 +242,8 @@ public class defActList {
                 return new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        mappings.Remove();
+                        mappings.Remove(getPlane().selBounds);
+                        getPlane().selBounds = null;
                         Event.projectMenu();
                         SP.repaintLater();
                     }
@@ -264,9 +269,19 @@ public class defActList {
 
     public static void MapSize() {
         mappings.Adjust();
-        v.SelBounds = null;
+        getPlane().selBounds = null;
         App.getJFrame().getMenuBar().getMenu(defMenu.MENU_SEL).setEnabled(false);
 
         SP.repaintLater();
+    }
+
+    public static plane getPlane() {
+        for(PanelManager p : SP.getWM().getPanels()){
+            if(p.getWindow() instanceof plane){
+                return (plane) p.getWindow();
+            }
+        }
+
+        return null;
     }
 }

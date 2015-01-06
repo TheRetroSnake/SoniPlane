@@ -18,7 +18,7 @@ public class v {
      * Used to convenience and future possibility of making preferences read from universal address */
     public static String prefs;
     /* version number constant */
-    public static final String version =     "1.1";
+    public static final String version =     "1.1.1";
     /* project version constant */
     public static final String projversion = "1.0";
     /* preferences version constant */
@@ -72,11 +72,6 @@ public class v {
 
     /* mappings size */
     public static bounds mapSize;
-
-    /* bounds for plane selection (soon to be obsolete) */
-    public static bounds SelBounds;
-    public static bounds SelStart;
-    public static bounds SelEnd;
 
     /* last time autosaved */
     public static long LastSave;

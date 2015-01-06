@@ -11,7 +11,6 @@ import gs.soni.plane.project.map;
 import gs.soni.plane.project.mappings;
 import gs.soni.plane.project.tileLoader;
 import gs.soni.plane.util.*;
-import gs.soni.plane.util.Event;
 import gs.soni.plane.v;
 
 import java.awt.*;
@@ -22,6 +21,11 @@ public class plane implements Window {
     private PlaneDrag dr;
     private boolean lastHeld = false;
     private boolean cOver;
+
+    /* bounds for plane selection */
+    public bounds selBounds;
+    public bounds selStart;
+    public bounds selEnd;
 
     public plane(){
         bound = new bounds(windowManager.defaultBounds());
@@ -78,9 +82,9 @@ public class plane implements Window {
         if(dr != null) {
             dr.draw(g, new bounds(b.x, b.y, bound.w, bound.h), mul);
 
-        } else if(v.SelBounds != null) {
-            v.DrawBounds(g, s, new bounds(b.x + (int)(mul * v.SelBounds.x), b.y + (int)(mul * v.SelBounds.y),
-                    (int)(mul * v.SelBounds.w), (int)(mul * v.SelBounds.h )), 0, 2);
+        } else if(selBounds != null) {
+            v.DrawBounds(g, s, new bounds(b.x + (int)(mul * selBounds.x), b.y + (int)(mul * selBounds.y),
+                    (int)(mul * selBounds.w), (int)(mul * selBounds.h )), 0, 2);
         }
     }
 
@@ -113,7 +117,7 @@ public class plane implements Window {
                         v.TileSelectedEnd = n.tileOff;
                         v.MapSelected = o;
 
-                        v.SelBounds = new bounds((int)((t.x - bound.x) / mul), (int)((t.y - bound.y) / mul),
+                        selBounds = new bounds((int)((t.x - bound.x) / mul), (int)((t.y - bound.y) / mul),
                                 (int)((t.w - t.x) / mul), (int)((t.h - t.y) / mul));
                         repaintAll();
 
@@ -121,12 +125,12 @@ public class plane implements Window {
                         if(Keys.isHeld(KeyUtil.CONTROL) || Keys.isHeld(KeyUtil.SHIFT)){
                             if(dr == null){
 
-                                if (v.SelBounds == null) {
+                                if (selBounds == null) {
                                     dr = new PlaneDrag(new bounds((int)((float)(t.x - bound.x) / mul),
                                                     (int)((float)(t.y - bound.y) / mul), t.w - t.x, t.h - t.y));
                                     repaint();
                                 } else {
-                                    dr = new PlaneDrag(v.SelBounds);
+                                    dr = new PlaneDrag(selBounds);
                                     repaint();
                                 }
                             }
@@ -137,44 +141,46 @@ public class plane implements Window {
                             mappings.SetMap(n, o);
 
                             v.MapSelected = o;
-                            v.SelBounds = new bounds((int)((t.x - bound.x) / mul), (int)((t.y - bound.y) / mul),
+                            selBounds = new bounds((int)((t.x - bound.x) / mul), (int)((t.y - bound.y) / mul),
                                     (int)((t.w - t.x) / mul), (int)((t.h - t.y) / mul));
                             repaint();
+                            SP.repaint();
                         }
 
                     } else if (Mouse.IsHeld(MouseUtil.RIGHT)) {
                         if(Keys.isHeld(KeyUtil.CONTROL) || Keys.isHeld(KeyUtil.SHIFT)){
                             if(dr == null){
-                                dr = new PlaneDrag(v.SelBounds);
+                                dr = new PlaneDrag(selBounds);
                                 repaint();
                             }
 
                         } else {
-                            if (v.SelStart == null) {
-                                v.SelStart = new bounds(t.x, t.y, 0, 0);
+                            if (selStart == null) {
+                                selStart = new bounds(t.x, t.y, 0, 0);
                             }
 
-                            v.SelEnd = new bounds(t.w, t.h, 0, 0);
-                            v.SelBounds = new bounds((int)((float)(v.SelStart.x - bound.x) / mul),
-                                    (int)((float)(v.SelStart.y - bound.y) / mul), (int)((float)(v.SelEnd.x - v.SelStart.x) / mul),
-                                    (int)((float)(v.SelEnd.y - v.SelStart.y) / mul));
+                            selEnd = new bounds(t.w, t.h, 0, 0);
+                            selBounds = new bounds((int)((float)(selStart.x - bound.x) / mul),
+                                    (int)((float)(selStart.y - bound.y) / mul), (int)((float)(selEnd.x - selStart.x) / mul),
+                                    (int)((float)(selEnd.y - selStart.y) / mul));
 
-                            if (-v.SelBounds.w > -1) {
-                                v.SelBounds.x = (int)((float)(v.SelEnd.x - bound.x) / mul) - w;
-                                v.SelBounds.w = (int)((float)(v.SelStart.x - bound.x) / mul + w) - v.SelBounds.x;
+                            if (-selBounds.w > -1) {
+                                selBounds.x = (int)((float)(selEnd.x - bound.x) / mul) - w;
+                                selBounds.w = (int)((float)(selStart.x - bound.x) / mul + w) - selBounds.x;
                             }
 
-                            if (-v.SelBounds.h > -1) {
-                                v.SelBounds.y = (int)((float)(v.SelEnd.y - bound.y) / mul) - h;
-                                v.SelBounds.h = (int)((float)(v.SelStart.y - bound.y) / mul + h) - v.SelBounds.y;
+                            if (-selBounds.h > -1) {
+                                selBounds.y = (int)((float)(selEnd.y - bound.y) / mul) - h;
+                                selBounds.h = (int)((float)(selStart.y - bound.y) / mul + h) - selBounds.y;
                             }
 
                             App.getJFrame().getMenuBar().getMenu(defMenu.MENU_SEL).setEnabled(true);
                             repaint();
+                            SP.repaint();
                         }
                     } else {
-                        v.SelStart = null;
-                        v.SelEnd = null;
+                        selStart = null;
+                        selEnd = null;
                     }
 
                     if(last != o) {
@@ -199,7 +205,7 @@ public class plane implements Window {
                 lastHeld = Keys.isHeld(KeyUtil.SHIFT);
 
             } else {
-                dr.set(lastHeld);
+                dr.set(lastHeld, this);
                 dr = null;
                 cOver = false;
                 SP.getWM().getPanelManager(this).toCursor(CursorList.get(Cursor.DEFAULT_CURSOR));

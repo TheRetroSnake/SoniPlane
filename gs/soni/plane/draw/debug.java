@@ -118,13 +118,14 @@ public class debug implements Window, PanelListener {
                         DrawDebug(g, "Autosave in: Never", 0, 60, 15);
                     }
 
-                    if(v.SelBounds != null) {
-                        DrawDebug(g, "Plane selection: x "+ (v.SelBounds.x / tileLoader.GetWidth()) +"-"+ ((v.SelBounds.x +
-                                v.SelBounds.w) / tileLoader.GetWidth()) +" y "+ (v.SelBounds.y / tileLoader.GetHeight()) + "-"+
-                                ((v.SelBounds.y + v.SelBounds.h) / tileLoader.GetHeight()), 0, 75, 15);
+                    bounds sel = getPlane().selBounds;
+                    if(sel != null) {
+                        DrawDebug(g, "Plane selection: x "+ (sel.x / tileLoader.GetWidth()) +"-"+ ((sel.x + sel.w) /
+                                tileLoader.GetWidth()) +" y "+ (sel.y / tileLoader.GetHeight()) + "-"+ ((sel.y + sel.h) /
+                                tileLoader.GetHeight()), 0, 75, 15);
 
-                        if((v.SelBounds.w / tileLoader.GetWidth()) <= 1 && (v.SelBounds.h / tileLoader.GetWidth()) <= 1){
-                            int off = ((v.SelBounds.y / tileLoader.GetWidth()) * v.mapSize.x) + (v.SelBounds.x / tileLoader.GetWidth());
+                        if((sel.w / tileLoader.GetWidth()) <= 1 && (sel.h / tileLoader.GetWidth()) <= 1){
+                            int off = ((sel.y / tileLoader.GetWidth()) * v.mapSize.x) + (sel.x / tileLoader.GetWidth());
                             if (off >= mappings.GetMapArray().length) {
                                 break;
                             }
@@ -206,7 +207,7 @@ public class debug implements Window, PanelListener {
         for (int o = 0; o < mappings.GetMapArray().length;o ++) {
 
             int x_ = o % v.mapSize.x, y_ = o / v.mapSize.x;
-            if (mappings.isInside(new bounds((x_ * w), (y_ * h), 0, 0), v.SelBounds)) {
+            if (mappings.isInside(new bounds((x_ * w), (y_ * h), 0, 0), getPlane().selBounds)) {
                 map n = mappings.GetMapArray()[o];
 
                 if(n.tileOff > tileEnd){
@@ -282,5 +283,15 @@ public class debug implements Window, PanelListener {
     @Override
     public void move(int x, int y) {
 
+    }
+
+    public static plane getPlane() {
+        for(PanelManager p : SP.getWM().getPanels()){
+            if(p.getWindow() instanceof plane){
+                return (plane) p.getWindow();
+            }
+        }
+
+        return null;
     }
 }

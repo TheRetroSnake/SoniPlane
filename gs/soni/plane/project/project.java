@@ -4,10 +4,10 @@ import gs.app.lib.util.FileUtil;
 import gs.soni.plane.util.file;
 import gs.soni.plane.v;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 // these are utilities for project files
 public class project {
@@ -172,5 +172,28 @@ public class project {
 
         file.saveFile(v.LaunchAdr +"/modules/comp/"+ v.OS +"/OS_SPECIFIC.asm",
                 new String(file.readFile(v.LaunchAdr +"/modules/comp/"+ v.OS +"/OS_SPECIFIC.asm")).replace("\r", "").getBytes());
+    }
+
+    public static int getStateAmount() {
+        int ret = 0;
+        for (String f : file.GetFileList(v.LaunchAdr +"/autosave/", "SPP")) {
+            String n = f.replace(v.LaunchAdr +"/autosave/", "");
+
+            if (n.startsWith("st") && n.contains(project.GetField("name", getFields(v.project)))) {
+                ret ++;
+            }
+        }
+
+        return ret;
+    }
+
+    public static String[] getFields(String f){
+        try {
+            return new String(file.readFile(f)).split("\n");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return new String[0];
     }
 }

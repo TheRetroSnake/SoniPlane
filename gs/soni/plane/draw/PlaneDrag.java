@@ -33,10 +33,11 @@ public class PlaneDrag {
         v.SelBounds = new bounds(end);
     }
 
-    public void logic(bounds off, boolean mouse) {
+    public void logic(bounds off, boolean mouse, float mul) {
         if(mouse && Mouse.IsInArea(new bounds(off.x, off.y, off.x + off.w, off.y + off.h))){
-            int x = ((Mouse.GetPos().x - mx) / tileLoader.GetWidth()) * tileLoader.GetWidth(),
-                    y = ((Mouse.GetPos().y - my) / tileLoader.GetHeight()) * tileLoader.GetHeight();
+
+            int x = ((int)((Mouse.GetPos().x - mx) / mul) / tileLoader.GetWidth()) * tileLoader.GetWidth(),
+                    y = ((int)((Mouse.GetPos().y - my) / mul) / tileLoader.GetHeight()) * tileLoader.GetHeight();
 
             end = new bounds(origin.x + x, origin.y + y, origin.w, origin.h);
             v.BlockControls = true;
@@ -44,11 +45,13 @@ public class PlaneDrag {
         }
     }
 
-    public void draw(Graphics g, bounds off, int mul) {
+    public void draw(Graphics g, bounds off, float mul) {
         Sprite s = new Sprite();
         s.setColor(Color.RED);
-        v.DrawBounds(g, s, new bounds(off.x + (origin.x * mul), off.y + (origin.y * mul), origin.w * mul, origin.h * mul), 0, 2 * mul);
+        v.DrawBounds(g, s, new bounds(off.x + (int)(mul * origin.x), off.y + (int)(mul * origin.y),
+                (int)(mul * origin.w), (int)(mul * origin.h)), 0, 2);
         s.setColor(Color.MAGENTA);
-        v.DrawBounds(g, s, new bounds(off.x + (end.x * mul), off.y + (end.y * mul), end.w * mul, end.h * mul), 0, 2 * mul);
+        v.DrawBounds(g, s, new bounds(off.x + (int)(mul * end.x), off.y + (int)(mul * end.y),
+                (int)(mul * end.w), (int)(mul * end.h)), 0, 2);
     }
 }

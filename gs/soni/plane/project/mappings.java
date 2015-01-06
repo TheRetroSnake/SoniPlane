@@ -2,6 +2,8 @@ package gs.soni.plane.project;
 
 import gs.app.lib.math.bounds;
 import gs.soni.plane.SP;
+import gs.soni.plane.draw.PanelManager;
+import gs.soni.plane.draw.plane;
 import gs.soni.plane.util.file;
 import gs.soni.plane.v;
 
@@ -126,16 +128,6 @@ public class mappings {
         m[off] = map;
     }
 
-    public static void ShiftMap(int x, int y) {
-        ShiftMap(x, y, v.SelBounds);
-
-        v.SelBounds.y += y * tileLoader.GetHeight();
-        v.SelBounds.x += x * tileLoader.GetWidth();
-        v.SelBounds = limitBounds(v.SelBounds, v.PlaneBounds, new bounds(v.PlaneBounds.x, v.PlaneBounds.y, 0, 0));
-        v.SelBounds = CheckSize(v.SelBounds, v.PlaneBounds,
-                new bounds(tileLoader.GetHeight(), tileLoader.GetHeight(), 0, 0), new bounds(v.PlaneBounds.x, v.PlaneBounds.y, 0, 0));
-    }
-
     public static void ShiftMap(int x, int y, bounds b) {
         int move = x + (y * v.mapSize.x), w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
         if (move < 0) {
@@ -155,28 +147,6 @@ public class mappings {
                 }
             }
         }
-    }
-
-    private static bounds CheckSize(bounds bounds, bounds outBounds, bounds size, bounds off) {
-        if (bounds.w < size.y) {
-            if (bounds.y - ((size.y - bounds.h)) > (outBounds.y - off.y)) {
-                bounds.y -= (size.y - bounds.h);
-
-            } else {
-                bounds.h += (size.y - bounds.h) - bounds.y;
-            }
-        }
-
-        if (bounds.w < size.x) {
-            if (bounds.x - (size.x - bounds.w) > outBounds.x - off.x) {
-                bounds.x -= (size.x - bounds.w);
-
-            } else {
-                bounds.w += (size.x - bounds.w) - bounds.x;
-            }
-        }
-
-        return bounds;
     }
 
     public static void Adjust() {
@@ -362,28 +332,6 @@ public class mappings {
     public static boolean isInside(bounds b, bounds cmpBounds) {
         return (b.x >= cmpBounds.x) && (b.w + b.x < cmpBounds.w + cmpBounds.x) &&
                 (b.y >= cmpBounds.y) && (b.h + b.y < cmpBounds.h + cmpBounds.y);
-    }
-
-    public static bounds limitBounds(bounds TargetBounds, bounds MaxBounds, bounds off) {
-        if(TargetBounds.y < (MaxBounds.y - off.y) / v.GetSizeMultiplier()){
-            TargetBounds.h += TargetBounds.y - (MaxBounds.y - off.y) / v.GetSizeMultiplier();
-            TargetBounds.y = (MaxBounds.y - off.y) / v.GetSizeMultiplier();
-        }
-
-        if(TargetBounds.h + TargetBounds.y > (MaxBounds.h + MaxBounds.y - off.y) / v.GetSizeMultiplier()){
-            TargetBounds.h -= TargetBounds.y - (MaxBounds.h + MaxBounds.y - off.y - TargetBounds.h) / v.GetSizeMultiplier();
-        }
-
-        if(TargetBounds.x < (MaxBounds.x - off.x) / v.GetSizeMultiplier()){
-            TargetBounds.w += TargetBounds.x - (MaxBounds.x - off.x) / v.GetSizeMultiplier();
-            TargetBounds.x = (MaxBounds.x - off.x) / v.GetSizeMultiplier();
-        }
-
-        if(TargetBounds.w + TargetBounds.x > (MaxBounds.w + MaxBounds.x - off.x) / v.GetSizeMultiplier()){
-            TargetBounds.w -= TargetBounds.x - (MaxBounds.w + MaxBounds.x - off.x - TargetBounds.w) / v.GetSizeMultiplier();
-        }
-
-        return TargetBounds;
     }
 }
 

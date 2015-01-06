@@ -245,8 +245,14 @@ public class menu implements Drawable, Logicable {
         return menus[GetMenuID(ID)].GetBase();
     }
 
-    public void SetMenuText(String ID, String text) {
-        menus[GetMenuID(ID)].SetText(text);
+    public boolean SetMenuText(String ID, String text) {
+        int id = GetMenuID(ID);
+        if(id != -1) {
+            menus[id].SetText(text);
+            return true;
+        }
+
+        return false;
     }
 
     public void SetBaseText(String ID, String text) {

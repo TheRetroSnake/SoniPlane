@@ -41,7 +41,6 @@ public class Event {
     public static final byte EP_MAX = (byte) 0xFF;
     private static EventHandler event;
     private static byte EventPriority = 0;
-    public static boolean SelMenu;
 
     public static void SetEvent(EventHandler EventID) {
         if (EventID != null && (EventPriority & 0xFF) < (EventID.getPriority() & 0xFF)) {
@@ -91,6 +90,7 @@ public class Event {
                     @Override
                     public void invoke() {
                         projectMenu();
+                        App.getJFrame().toFront();
 
                         v.BlockControls = false;
                         v.LastSave = System.currentTimeMillis();
@@ -98,15 +98,18 @@ public class Event {
                         SP.SetMenu(new menu());
 
                         windowManager w = SP.getWM();
-                        w.addWindow(new debug());
-                        w.addWindow(new tileEditor());
-                        w.addWindow(new palette());
-                        w.addWindow(new palChange());
-                        w.addWindow(new tileDisp());
-                        w.addWindow(new plane());
+                        w.addWindow(new debug(), "", 0);
+                        w.addWindow(new plane(), "Plane editor", 6);
+                        w.addWindow(new tileDisp(), "Tile selector", 6);
+                        w.addWindow(new palChange(), "Palette editor", 6);
+                        w.addWindow(new palette(), "Palette selector", 6);
+                        w.addWindow(new tileEditor(), "Tile editor", 6);
 
                         try {
                             v.project = project.GetField("switch", new String(file.readFile(v.project)).split("\n"), v.project);
+                            /* set the cursor to DEFAULT cursor once done */
+                            App.getJPanel().setCursor(CursorList.get(Cursor.DEFAULT_CURSOR));
+
                         } catch (FileNotFoundException e1) {
                             e1.printStackTrace();
                         }
@@ -210,20 +213,23 @@ public class Event {
     }
 
     public static void projectMenu() {
-        MenuBar m = new MenuBar();
-        m.add(defMenu.GetMenu(defMenu.PROJ_FILE));
-        m.add(defMenu.GetMenu(defMenu.PROJ_PLANE));
-        SelMenu = v.SelBounds != null;
-        if (SelMenu) {
-            m.add(defMenu.GetMenu(defMenu.PROJ_SEL));
-        }
-        m.add(defMenu.GetMenu(defMenu.PROJ_SETT));
-        m.add(defMenu.GetMenu(defMenu.MENU_HELP));
-        App.getJFrame().setMenuBar(m);
+        MenuBar m = App.getJFrame().getMenuBar();
+
+        m.getMenu(defMenu.MENU_SETT).setEnabled(true);
+        m.getMenu(defMenu.MENU_SEL).setEnabled(false);
+        m.getMenu(defMenu.MENU_PLANE).setEnabled(true);
+        m.getMenu(defMenu.MENU_STATE).setEnabled(true);
+        defMenu.createStates(m.getMenu(defMenu.MENU_STATE));
+
+        Menu me = m.getMenu(0);
+        me.getItem(0).setEnabled(true);
+        me.getItem(1).setEnabled(true);
+        me.getItem(2).setEnabled(true);
+        me.getItem(3).setEnabled(true);
     }
 
     public static EventHandler[] GetFileMenuArr(final int EventID) {
-        return new EventHandler[]{ReturnEvent(E_PROJ_LOAD, EP_MAX, ""),
+        return new EventHandler[]{ ReturnEvent(E_PROJ_LOAD, EP_MAX, ""),
                 new EventHandler(EventID, EP_MAX, "") {
                     @Override
                     public void invoke() {
@@ -291,7 +297,7 @@ public class Event {
         removeWM();
         windowManager w = new windowManager();
         SP.addToLogicList(w);
-        w.addWindow(new loading(Event.E_PROJ));
+        w.addWindow(new loading(Event.E_PROJ), "", 0);
     }
 
     public static void removeWM() {

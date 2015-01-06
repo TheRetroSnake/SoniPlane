@@ -26,11 +26,11 @@ public class SaveDel implements Runnable {
         Arrays.sort(files);
 
         while(file.getFolderSize(v.LaunchAdr +"/autosave") > toSpace){
-            for(int i = 0;i < f.length;i ++){
-                if(f[i].contains(files[0])){
+            for (String F : f) {
+                if (F.contains(files[0]) && !F.contains("st")) {
                     try {
-                        new File(f[i]).delete();
-                        file.delete(f[i].replace(".SPP", ""));
+                        new File(F).delete();
+                        file.delete(F.replace(".SPP", ""));
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -38,6 +38,9 @@ public class SaveDel implements Runnable {
                 }
             }
 
+            if(files.length < 1){
+                break;
+            }
             files = Arrays.copyOfRange(files, 1, files.length);
         }
     }

@@ -16,6 +16,7 @@ public class tileLoader {
     private static int[][] tiles;
     private static BufferedImage[][] tex;
     private static BufferedImage trans;
+    private static Thread render;
 
     public static Class LoadTileModule(String JarAbsolute, String Class) throws IOException, ClassNotFoundException {
 
@@ -228,5 +229,10 @@ public class tileLoader {
         }
 
         return false;
+    }
+
+    public static void startTileRender() {
+        render = new Thread(new TileRenderer(), "Tile Renderer thread");
+        render.start();
     }
 }

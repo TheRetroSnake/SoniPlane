@@ -1,16 +1,21 @@
 package gs.soni.plane.project;
 
-import gs.soni.plane.SP;
+import gs.app.lib.application.App;
+import gs.soni.plane.util.CursorList;
 import gs.soni.plane.util.Event;
 import gs.soni.plane.util.file;
 import gs.soni.plane.v;
 
+import java.awt.*;
 import java.io.FileNotFoundException;
 
 public class ProjectLoader implements Runnable {
 
     @Override
     public void run() {
+        /* set the cursor to BUSY cursor while loading */
+        App.getJPanel().setCursor(CursorList.get(CursorList.BUSY_CURSOR));
+
         try {
             v.AutoSave = Long.parseLong(project.GetField("autosave", new String(file.readFile(v.project)).split("\n")));
             if(Boolean.parseBoolean(project.GetField("asAutoDelete", new String(file.readFile(v.prefs)).split("\n")))) {
@@ -29,14 +34,8 @@ public class ProjectLoader implements Runnable {
             mappings.SetMapOffset(Integer.parseInt(project.GetField("map offset", new String(file.readFile(v.project)).split("\n"))));
 
             tileLoader.render();
-            v.setPlaneBounds();
-            v.setTileListBounds();
-            v.SetPalListBounds();
-            v.SetPalChgBounds();
-            v.SetTilEdBounds();
-
             Event.ClearEvent();
-            Event.SetEvent(Event.ReturnEvent(Event.E_PROJ, 0x10, ""));
+            Event.SetEvent(Event.ReturnEvent(Event.E_PROJ, 1, ""));
 
         } catch (FileNotFoundException e1) {
             e1.printStackTrace();

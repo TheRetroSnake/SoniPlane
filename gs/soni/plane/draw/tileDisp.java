@@ -21,7 +21,7 @@ public class tileDisp implements Window {
     private boolean lastInTile;
 
     public tileDisp(){
-        bound = v.TileBounds;
+        bound = new bounds(windowManager.defaultBounds());
     }
 
     @Override
@@ -30,9 +30,7 @@ public class tileDisp implements Window {
     }
 
     @Override
-    public void draw(Graphics g) {
-        bound = v.TileBounds;
-        g.clearScreen(Color.BLACK);
+    public void draw(Graphics g, bounds b, float a) {
         int w = tileLoader.GetWidth(), h = tileLoader.GetHeight();
 
         Sprite s = new Sprite();
@@ -43,13 +41,14 @@ public class tileDisp implements Window {
         if (w_ > 0) {
             for (int o = 0; o < tileLoader.GetTextureAmount(v.PalLine); o++) {
                 int x = o % w_, y = o / w_;
-                bounds t = new bounds((x * (w + 2)), (y * (h + 2)), ((x + 1) * (w + 2)) - 2, ((y + 1) * (h + 2)) - 2);
+                bounds t = new bounds(b.x + (x * (w + 2)), b.y + (y * (h + 2)),
+                        b.x + ((x + 1) * (w + 2)) - 2, b.y + ((y + 1) * (h + 2)) - 2);
 
                 if (t.y < App.GetBounds().h) {
                     g.drawImage(tileLoader.GetTexture(v.PalLine, o), t.x, t.y, w, h);
                     drawn ++;
 
-                    if (Mouse.IsInArea(new bounds(bound.x + t.x, bound.y + t.y, bound.x + t.w, bound.y + t.h))) {
+                    if (Mouse.IsInArea(new bounds(bound.x + t.x - b.x, bound.y + t.y - b.y, bound.x + t.w - b.x, bound.y + t.h - b.y))) {
                         v.DrawBounds(g, s, new bounds(t.x, t.y, t.w - t.x, t.h - t.y), 2, 2);
 
                     } else if(isSelected(o)){
@@ -136,5 +135,54 @@ public class tileDisp implements Window {
     @Override
     public boolean drawBound() {
         return true;
+    }
+
+    @Override
+    public boolean cursorOverride() {
+        return false;
+    }
+
+    @Override
+    public void defaultSize() {
+        OptimizeBound();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        int w = tileLoader.GetWidth() + 2, h = tileLoader.GetHeight() + 2;
+        bound.w = (width / w) * w;
+        bound.h = (height / h) * h;
+
+        if(bound.w < w * 8){
+            bound.w = w * 8;
+        }
+
+        if(bound.h < h){
+            bound.h = h;
+        }
+    }
+
+    @Override
+    public void move(int x, int y) {
+
+    }
+
+    private void OptimizeBound() {
+        int closest = 0, left = Integer.MAX_VALUE, textures = tileLoader.GetTextureAmount(v.PalLine);
+        for(int i = 3;i <= 8;i ++){
+            int n = (int) ((((float)textures / i) % 1) * 1000);
+
+            if(n <= left){
+                left = n;
+                closest = i;
+            }
+        }
+
+        resizeTo((textures / (closest + 1)) + 1, closest + 1);
+    }
+
+    private void resizeTo(int width, int height) {
+        bound.w = width * (tileLoader.GetWidth() + 2);
+        bound.h = height * (tileLoader.GetHeight() + 2);
     }
 }

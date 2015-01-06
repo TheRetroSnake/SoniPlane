@@ -1,15 +1,31 @@
 package gs.soni.plane.util;
 
+import gs.app.lib.application.App;
+import gs.app.lib.util.FileUtil;
+import gs.app.lib.util.KeyUtil;
+import gs.soni.plane.SP;
+import gs.soni.plane.project.Save;
+import gs.soni.plane.project.project;
+import gs.soni.plane.v;
+import javafx.scene.control.RadioButton;
+
+import javax.swing.*;
+import javax.swing.plaf.basic.BasicRadioButtonMenuItemUI;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class defMenu {
-
     public static final int MENU_FILE =      0;
-    public static final int MENU_HELP =      1;
-    public static final int PROJ_FILE =      2;
-    public static final int PROJ_SETT =      3;
-    public static final int PROJ_PLANE =     4;
-    public static final int PROJ_SEL =       5;
+    public static final int MENU_PLANE =     1;
+    public static final int MENU_SETT =      2;
+    public static final int MENU_SEL =       3;
+    public static final int MENU_STATE =     4;
+    public static final int MENU_HELP =      5;
 
     public static final int MEIT_EXIT =      0;
     public static final int MEIT_ABOUT =     1;
@@ -17,13 +33,12 @@ public class defMenu {
     public static final int PROJ_SAVE =      3;
     public static final int PROJ_EDIT =      4;
     public static final int PROJ_OPEN =      5;
-    public static final int PROJ_PSIZE =    10;
-    public static final int PROJ_DHP =      11;
-    public static final int PROJ_DLP =      12;
-    public static final int PROJ_PWIDTHP =  13;
-    public static final int PROJ_PWIDTHM =  14;
-    public static final int PROJ_PHEIGHTP = 15;
-    public static final int PROJ_PHEIGHTM = 16;
+
+    public static final int PROJ_PWIDTHP =  10;
+    public static final int PROJ_PWIDTHM =  11;
+    public static final int PROJ_PHEIGHTP = 12;
+    public static final int PROJ_PHEIGHTM = 13;
+
     public static final int SEL_HILOP =     20;
     public static final int SEL_FLIPX =     21;
     public static final int SEL_FLIPY =     22;
@@ -45,11 +60,6 @@ public class defMenu {
                 return help;
 
             case MENU_FILE:
-                Menu file = new Menu("File");
-                file.add(GetMenuItem(MEIT_EXIT));
-                return file;
-
-            case PROJ_FILE:
                 Menu pfile = new Menu("File");
                 pfile.add(GetMenuItem(PROJ_SAVE));
                 pfile.add(GetMenuItem(PROJ_OPEN));
@@ -58,14 +68,10 @@ public class defMenu {
                 pfile.add(GetMenuItem(MEIT_EXIT));
                 return pfile;
 
-            case PROJ_SETT:
-                Menu psett = new Menu("Settings");
-                psett.add(GetMenuItem(PROJ_PSIZE));
-                psett.add(GetMenuItem(PROJ_DHP));
-                psett.add(GetMenuItem(PROJ_DLP));
-                return psett;
+            case MENU_SETT:
+                return getSettingsMenu();
 
-            case PROJ_PLANE:
+            case MENU_PLANE:
                 Menu plane = new Menu("Edit");
                 plane.add(GetMenuItem(PROJ_PWIDTHP));
                 plane.add(GetMenuItem(PROJ_PWIDTHM));
@@ -73,7 +79,7 @@ public class defMenu {
                 plane.add(GetMenuItem(PROJ_PHEIGHTM));
                 return plane;
 
-            case PROJ_SEL:
+            case MENU_SEL:
                 Menu sel = new Menu("Selection");
                 sel.add(GetMenuItem(SEL_DESEL));
                 sel.add(GetMenuItem(SEL_CLEAR));
@@ -89,6 +95,9 @@ public class defMenu {
                 sel.add(GetMenuItem(SEL_TILINM));
                 return sel;
 
+            case MENU_STATE:
+                return new Menu("Save States");
+
         }
 
         throw new NullPointerException("Menu with ID "+ id +" not found!");
@@ -97,132 +106,192 @@ public class defMenu {
     private static MenuItem GetMenuItem(int id) {
         switch (id){
             case MEIT_ABOUT:
-                MenuItem about = new MenuItem("About");
-                about.addActionListener(defActList.Get(defActList.ABOUT));
-                return about;
+                return createItem("About", -1, false, defActList.Get(defActList.ABOUT));
 
             case MEIT_EXIT:
-                MenuItem exit = new MenuItem("Exit");
-                exit.addActionListener(defActList.Get(defActList.EXIT));
-                return exit;
+                return createItem("Exit", -1, false, defActList.Get(defActList.EXIT));
+
 
             case PROJ_SAVE:
-                MenuItem save = new MenuItem("Save");
-                save.addActionListener(defActList.Get(defActList.SAVE));
-                return save;
+                return createItem("Save", KeyUtil.S, false, defActList.Get(defActList.SAVE));
 
             case PROJ_OPEN:
-                MenuItem open = new MenuItem("Open new");
-                open.addActionListener(defActList.Get(defActList.OPEN));
-                return open;
+                return createItem("Open new", KeyUtil.O, false, defActList.Get(defActList.OPEN));
 
             case PROJ_EDIT:
-                MenuItem edit = new MenuItem("Reconfigure");
-                edit.addActionListener(defActList.Get(defActList.EDIT));
-                return edit;
+                return createItem("Reconfigure", KeyUtil.E, false, defActList.Get(defActList.EDIT));
 
             case PROJ_RELOAD:
-                MenuItem reload = new MenuItem("Reload");
-                reload.addActionListener(defActList.Get(defActList.RELOAD));
-                return reload;
-
-            case PROJ_PSIZE:
-                MenuItem psize = new MenuItem("Change Plane Size");
-                psize.addActionListener(defActList.Get(defActList.CHPLSZ));
-                return psize;
-
-            case PROJ_DHP:
-                MenuItem dhp = new MenuItem("Draw High Plane");
-                dhp.addActionListener(defActList.Get(defActList.DRHIPLANE));
-                return dhp;
-
-            case PROJ_DLP:
-                MenuItem dlp = new MenuItem("Draw Low Plane");
-                dlp.addActionListener(defActList.Get(defActList.DRLOPLANE));
-                return dlp;
+                return createItem("Reload", KeyUtil.R, false, defActList.Get(defActList.RELOAD));
 
             case PROJ_PWIDTHP:
-                MenuItem pwidthp = new MenuItem("Plane Width +");
-                pwidthp.addActionListener(defActList.Get(defActList.PWIDTHP));
-                return pwidthp;
+                return createItem("Increase Plane Width", KeyUtil.NUM6, false, defActList.Get(defActList.PWIDTHP));
 
             case PROJ_PWIDTHM:
-                MenuItem pwidthm = new MenuItem("Plane Width -");
-                pwidthm.addActionListener(defActList.Get(defActList.PWIDTHM));
-                return pwidthm;
+                return createItem("Decrease Plane Width", KeyUtil.NUM7, false, defActList.Get(defActList.PWIDTHM));
 
             case PROJ_PHEIGHTP:
-                MenuItem pheightp = new MenuItem("Plane Height +");
-                pheightp.addActionListener(defActList.Get(defActList.PHEIGHTP));
-                return pheightp;
+                return createItem("Increase Plane Height", KeyUtil.NUM8, false, defActList.Get(defActList.PHEIGHTP));
 
             case PROJ_PHEIGHTM:
-                MenuItem pheightm = new MenuItem("Plane Height -");
-                pheightm.addActionListener(defActList.Get(defActList.PHEIGHTM));
-                return pheightm;
+                return createItem("Decrease Plane Height", KeyUtil.NUM9, false, defActList.Get(defActList.PHEIGHTM));
+
 
             case SEL_HILOP:
-                MenuItem hilo = new MenuItem("Set To High/Low Plane");
-                hilo.addActionListener(defActList.Get(defActList.HILOPL));
-                return hilo;
-
-            case SEL_FLIPX:
-                MenuItem flipx = new MenuItem("Flip Horizontally");
-                flipx.addActionListener(defActList.Get(defActList.FLIPX));
-                return flipx;
-
-            case SEL_FLIPY:
-                MenuItem flipy = new MenuItem("Flip Vertically");
-                flipy.addActionListener(defActList.Get(defActList.FLIPY));
-                return flipy;
-
-            case SEL_PLINEP:
-                MenuItem plinep = new MenuItem("Palette line +");
-                plinep.addActionListener(defActList.Get(defActList.PLINEP));
-                return plinep;
-
-            case SEL_PLINEM:
-                MenuItem plinem = new MenuItem("Palette line -");
-                plinem.addActionListener(defActList.Get(defActList.PLINEM));
-                return plinem;
-
-            case SEL_DESEL:
-                MenuItem deselect = new MenuItem("Deselect");
-                deselect.addActionListener(defActList.Get(defActList.DESEL));
-                return deselect;
+                return createItem("Set To High/Low Plane", KeyUtil.U, false, defActList.Get(defActList.HILOPL));
 
             case SEL_TILINP:
-                MenuItem tilinp = new MenuItem("Tile Index +");
-                tilinp.addActionListener(defActList.Get(defActList.TILINP));
-                return tilinp;
+                return createItem("Increase Tile Index", KeyUtil.J, false, defActList.Get(defActList.TILINP));
 
             case SEL_TILINM:
-                MenuItem tilinm = new MenuItem("Tile Index -");
-                tilinm.addActionListener(defActList.Get(defActList.TILINM));
-                return tilinm;
+                return createItem("Decrease Tile Index", KeyUtil.M, false, defActList.Get(defActList.TILINM));
+
+            case SEL_PLINEP:
+                return createItem("Increase Palette line", KeyUtil.H, false, defActList.Get(defActList.PLINEP));
+
+            case SEL_PLINEM:
+                return createItem("Decrease Palette line", KeyUtil.N, false, defActList.Get(defActList.PLINEM));
+
+            case SEL_FLIPX:
+                return createItem("Flip Horizontally", KeyUtil.G, false, defActList.Get(defActList.FLIPX));
+
+            case SEL_FLIPY:
+                return createItem("Flip Vertically", KeyUtil.B, false, defActList.Get(defActList.FLIPY));
+
+            case SEL_DESEL:
+                return createItem("Deselect", KeyUtil.Y, false, defActList.Get(defActList.DESEL));
 
             case SEL_FILLSEL:
-                MenuItem fillsel = new MenuItem("Fill Selection with tile");
-                fillsel.addActionListener(defActList.Get(defActList.FILLSEL));
-                return fillsel;
+                return createItem("Fill Selection with tile", KeyUtil.O, false, defActList.Get(defActList.FILLSEL));
 
             case SEL_CLEAR:
-                MenuItem clear = new MenuItem("Clear Tiles From Selection");
-                clear.addActionListener(defActList.Get(defActList.CLEARSEL));
-                return clear;
+                return createItem("Clear Tiles From Selection", KeyUtil.L, false, defActList.Get(defActList.CLEARSEL));
 
             case SEL_REMOVE:
-                MenuItem remove = new MenuItem("Remove Tiles From Selection");
-                remove.addActionListener(defActList.Get(defActList.REMOVESEL));
-                return remove;
+                return createItem("Remove Tiles From Selection", KeyUtil.I, false, defActList.Get(defActList.REMOVESEL));
 
             case SEL_INSERT:
-                MenuItem insert = new MenuItem("Insert Tiles From Selection");
-                insert.addActionListener(defActList.Get(defActList.INSERTSEL));
-                return insert;
+                return createItem("Insert Tiles To Selection", KeyUtil.K, false, defActList.Get(defActList.INSERTSEL));
 
         }
 
         throw new NullPointerException("MenuItem with ID "+ id +" not found!");
+    }
+
+    private static MenuItem createItem(String text, int key, boolean shift, ActionListener a) {
+        MenuItem r = new MenuItem(text);
+        if(key != -1) {
+            r.setShortcut(new MenuShortcut(key, shift));
+        }
+
+        if(a != null) {
+            r.addActionListener(a);
+        }
+
+        return r;
+    }
+
+    public static void createStates(Menu m) {
+        m.removeAll();
+        int amount = project.getStateAmount();
+
+        for(int i = 1;i < amount + 1;i ++){
+            CreateState(i, true, m);
+        }
+
+        CreateState(amount + 1, false, m);
+    }
+
+    private static void CreateState(final int id, boolean full, Menu menu) {
+        Menu m = new Menu("State "+ id);
+        menu.add(m);
+
+        MenuItem load = new MenuItem("Load");
+        load.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                v.project = v.LaunchAdr +"/autosave/st"+ id +"-"+ project.GetField("name", project.getFields(v.project)) +".SPP";
+                Event.SetEvent(Event.ReturnEvent(Event.E_PROJ_LOAD, Event.EP_MAX, v.project));
+            }
+        });
+        m.add(load);
+
+        MenuItem save = new MenuItem("Save");
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Thread(new Save("st"+ id +"-"+ project.GetField("name", project.getFields(v.project)), true, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        defMenu.createStates(App.getJFrame().getMenuBar().getMenu(defMenu.MENU_STATE));
+                    }
+                }), "SaveState").start();
+            }
+        });
+        m.add(save);
+
+        MenuItem del = new MenuItem("Delete");
+        del.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    file.delete(v.LaunchAdr +"/autosave/st"+ id +"-"+ project.GetField("name", project.getFields(v.project)) +".SPP");
+                    file.delete(v.LaunchAdr +"/autosave/st"+ id +"-"+ project.GetField("name", project.getFields(v.project)));
+
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                int minus = 0;
+                for(int i = 1;i < project.getStateAmount() + 2;i ++){
+                    String o = v.LaunchAdr +"/autosave/st"+ i +"-"+ project.GetField("name", project.getFields(v.project));
+
+                    if(FileUtil.exists(o +".SPP")){
+                        String f = o.replace("st"+ i, "st"+ (i - minus));
+                        FileUtil.rename(o +".SPP", f +".SPP");
+                        FileUtil.rename(o, f);
+
+                        FileUtil.writeString(f +".SPP", FileUtil.readString(f +".SPP").replace("st"+ i, "st"+ (i - minus)), false);
+
+                    } else {
+                        minus ++;
+                    }
+                }
+                defMenu.createStates(App.getJFrame().getMenuBar().getMenu(defMenu.MENU_STATE));
+            }
+        });
+        m.add(del);
+
+        if(!full){
+            load.setEnabled(false);
+            del.setEnabled(false);
+        }
+    }
+
+    public static Menu getSettingsMenu() {
+        Menu m = new Menu("Settings");
+        CheckboxMenuItem m1 = new CheckboxMenuItem("Draw High Plane", true);
+        m1.setShortcut(new MenuShortcut(KeyUtil.Q, false));
+        m1.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                v.DrawHighPlane ^= true;
+                SP.repaintLater();
+            }
+        });
+
+        CheckboxMenuItem m2 = new CheckboxMenuItem("Draw Low Plane", true);
+        m2.setShortcut(new MenuShortcut(KeyUtil.W, false));
+        m2.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                v.DrawLowPlane ^= true;
+                SP.repaintLater();
+            }
+        });
+
+        m.add(m1);
+        m.add(m2);
+        return m;
     }
 }

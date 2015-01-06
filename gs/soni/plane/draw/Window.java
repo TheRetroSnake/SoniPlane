@@ -5,9 +5,13 @@ import gs.app.lib.math.bounds;
 
 public interface Window {
     bounds getBounds();
-    void draw(Graphics g);
+    void draw(Graphics g, bounds b, float a);
     void logic();
     void create();
     boolean canUnFocus();
     boolean drawBound();
+    boolean cursorOverride();
+    void defaultSize();
+    void resize(int width, int height);
+    void move(int x, int y);
 }

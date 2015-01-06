@@ -15,7 +15,7 @@ public class palette implements Window {
     private bounds bound;
 
     public palette(){
-        bound = v.PalBounds;
+        bound = new bounds(windowManager.defaultBounds());
     }
 
     @Override
@@ -24,8 +24,7 @@ public class palette implements Window {
     }
 
     @Override
-    public void draw(Graphics g) {
-        bound = v.PalBounds;
+    public void draw(Graphics g, bounds b, float a) {
         if (bound.y + bound.h > 0) {
             Sprite s = new Sprite();
             int height = bound.h / gs.soni.plane.project.palette.getPalette().length;
@@ -34,7 +33,7 @@ public class palette implements Window {
                 int len = gs.soni.plane.project.palette.getPalette()[l].length, width = bound.w / len;
 
                 for (int o = 0; o < len; o++) {
-                    bounds t = new bounds((o * width), (l * height), width, height);
+                    bounds t = new bounds(b.x + (o * width), b.y + (l * height), width, height);
 
                     s.setColor(gs.soni.plane.project.palette.getPalette(l, o));
                     s.setBounds(t);
@@ -50,7 +49,8 @@ public class palette implements Window {
                         }
                     }
 
-                    if (Mouse.IsInArea(new bounds(bound.x + t.x, bound.y + t.y, bound.x + t.x + t.w, bound.y + t.y + t.h))) {
+                    if (Mouse.IsInArea(new bounds(bound.x + t.x - b.x, bound.y + t.y - b.y,
+                            bound.x + t.x + t.w - b.x, bound.y + t.y + t.h - b.y))) {
                         s.setColor(Color.RED);
                         v.DrawBounds(g, s, t, 0, 2);
                     }
@@ -106,5 +106,27 @@ public class palette implements Window {
     @Override
     public boolean drawBound() {
         return true;
+    }
+
+    @Override
+    public boolean cursorOverride() {
+        return false;
+    }
+
+    @Override
+    public void defaultSize() {
+        bound.w = gs.soni.plane.project.palette.getPalette()[0].length * 16;
+        bound.h = gs.soni.plane.project.palette.getPalette().length * 32;
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        bound.w = width;
+        bound.h = height;
+    }
+
+    @Override
+    public void move(int x, int y) {
+
     }
 }

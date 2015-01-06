@@ -6,6 +6,7 @@ import gs.app.lib.math.bounds;
 import gs.app.lib.util.MouseUtil;
 import gs.soni.plane.SP;
 import gs.soni.plane.project.palette;
+import gs.soni.plane.project.tileLoader;
 import gs.soni.plane.util.Mouse;
 import gs.soni.plane.util.Style;
 import gs.soni.plane.util.StyleItem;
@@ -15,12 +16,11 @@ import java.awt.*;
 
 public class palChange implements Window {
     private final int Size = 16;
-    private boolean draw;
     private bounds bound;
     private int sel = -1;
 
     public palChange(){
-        bound = v.PalChgBounds;
+        bound = new bounds(windowManager.defaultBounds());
     }
 
     @Override
@@ -29,28 +29,29 @@ public class palChange implements Window {
     }
 
     @Override
-    public void draw(Graphics g) {
-        bound = v.PalChgBounds;
+    public void draw(Graphics g, bounds b, float a) {
         if(((bound.w / 5) * 4) - 50 > 0 && bound.y + bound.h > 0) {
-            g.clearScreen(Color.BLACK);
             Sprite s = new Sprite();
             StyleItem st = Style.GetStyle("menu_center");
 
             // render big palette and red border next to it
-            s.setBounds(0, 0, bound.w / 5, bound.h);
+            s.setBounds(b.x, b.y, bound.w / 5, bound.h);
             s.setColor(palette.getPalette(v.PalLine, v.PalSelcted));
             g.fillRect(s);
-            s.setBounds((bound.w / 5), 0, 2, bound.h);
+            s.setBounds(b.x + (bound.w / 5), b.y, 2, bound.h);
             s.setColor(Color.RED);
             g.fillRect(s);
 
             // draw drag-thingies
-            s.setBounds((bound.w / 5) + 54 - (Size / 2), (bound.h / 4) - (Size / 2), ((bound.w / 5) * 4) - 50 + (Size / 2), Size);
+            s.setBounds(b.x + (bound.w / 5) + 52 - (Size / 2), b.y + (bound.h / 4) - (Size / 2),
+                    ((bound.w / 5) * 4) - 50 + (Size / 2), Size);
             g.fillRect(s);
-            s.setBounds((bound.w / 5) + 54 - (Size / 2), ((bound.h / 4) * 2) - (Size / 2), ((bound.w / 5) * 4) - 50 + (Size / 2), Size);
+            s.setBounds(b.x + (bound.w / 5) + 52 - (Size / 2), b.y + ((bound.h / 4) * 2) - (Size / 2),
+                    ((bound.w / 5) * 4) - 50 + (Size / 2), Size);
             s.setColor(Color.GREEN);
             g.fillRect(s);
-            s.setBounds((bound.w / 5) + 54 - (Size / 2), ((bound.h / 4) * 3) - (Size / 2), ((bound.w / 5) * 4) - 50 + (Size / 2), Size);
+            s.setBounds(b.x + (bound.w / 5) + 52 - (Size / 2), b.y + ((bound.h / 4) * 3) - (Size / 2),
+                    ((bound.w / 5) * 4) - 50 + (Size / 2), Size);
             s.setColor(Color.BLUE);
             g.fillRect(s);
 
@@ -58,47 +59,47 @@ public class palChange implements Window {
             // draw palette values
             Graphics.setFont(st.GetFont());
             g.setColor(st.GetColor());
-            int x = (bound.w / 5) + 8;
+            int x = b.x + (bound.w / 5) + 8;
 
             String tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getRed())).toUpperCase();
-            int off1 = (int) ((bound.h / 4) - (Graphics.GetTextHeight(tx) / 2));
+            int off1 = b.y + (int) ((bound.h / 4) - (Graphics.GetTextHeight(tx) / 2));
             g.drawText(tx, x, off1);
 
             tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getGreen())).toUpperCase();
-            int off2 = (int) (((bound.h / 4) * 2) - (Graphics.GetTextHeight(tx) / 2));
+            int off2 = b.y + (int) (((bound.h / 4) * 2) - (Graphics.GetTextHeight(tx) / 2));
             g.drawText(tx, x, off2);
 
             tx = Integer.toHexString(palette.ColorToInt(palette.getPalette(v.PalLine, v.PalSelcted).getBlue())).toUpperCase();
-            int off3 = (int) (((bound.h / 4) * 3) - (Graphics.GetTextHeight(tx) / 2));
+            int off3 = b.y + (int) (((bound.h / 4) * 3) - (Graphics.GetTextHeight(tx) / 2));
             g.drawText(tx, x, off3);
 
-            x = (bound.w / 5) + 54 - (Size / 2);
-            PalSelector(new bounds(x, off1 + 2, ((bound.w / 5) * 4) - 54, Size + 2),
-                    palette.getPalette(v.PalLine, v.PalSelcted).getRed(), s, g);
+            x = (bound.w / 5) + 58 - (Size / 2);
+            PalSelector(new bounds(x, off1 + 2, ((bound.w / 5) * 4) - 54, Size + 2), b,
+                    palette.getPalette(v.PalLine, v.PalSelcted).getRed(), g);
 
-            PalSelector(new bounds(x, off2 + 2, ((bound.w / 5) * 4) - 54, Size + 2),
-                    palette.getPalette(v.PalLine, v.PalSelcted).getGreen(), s, g);
+            PalSelector(new bounds(x, off2 + 2, ((bound.w / 5) * 4) - 54, Size + 2), b,
+                    palette.getPalette(v.PalLine, v.PalSelcted).getGreen(), g);
 
-            PalSelector(new bounds(x, off3 + 2, ((bound.w / 5) * 4) - 54, Size + 2),
-                    palette.getPalette(v.PalLine, v.PalSelcted).getBlue(), s, g);
+            PalSelector(new bounds(x, off3 + 2, ((bound.w / 5) * 4) - 54, Size + 2), b,
+                    palette.getPalette(v.PalLine, v.PalSelcted).getBlue(), g);
         }
     }
 
-    private void PalSelector(bounds bounds, int color, Sprite s, Graphics g) {
-        if(Mouse.IsInArea(new bounds(bounds.x, bounds.y, bounds.x + bounds.w, bounds.y + bounds.h))){
+    private void PalSelector(bounds bounds, bounds b, int color, Graphics g) {
+        if(Mouse.IsInArea(new bounds(bound.x + bounds.x - (b.x * 2), bound.y + bounds.y - b.y,
+                bound.x + bounds.x + bounds.w + b.x, bound.y + bounds.y + bounds.h - b.y))){
             if(Mouse.IsHeld(MouseUtil.LEFT) || Mouse.IsHeld(MouseUtil.RIGHT)){
-                s.setColor(new Color(155, 155, 155));
+                g.setColor(new Color(155, 155, 155));
 
             } else {
-                s.setColor(new Color(205, 205, 205));
+                g.setColor(new Color(205, 205, 205));
             }
         } else {
-            s.setColor(Color.WHITE);
+            g.setColor(Color.WHITE);
         }
 
         float pos = (((float)palette.GetGrid(color) / 256) * bounds.w) - 4;
-        s.setBounds((int) (bounds.x + pos), bounds.y, Size, bounds.h);
-        g.fillRect(s);
+        g.fillRect((int) (bounds.x + pos), bounds.y, Size, bounds.h);
     }
 
     @Override
@@ -134,11 +135,39 @@ public class palChange implements Window {
         return true;
     }
 
+    @Override
+    public boolean cursorOverride() {
+        return false;
+    }
+
+    @Override
+    public void defaultSize() {
+        bound.w = 256 + 58 - (Size / 2);
+        bound.h = Size * 6;
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        bound.w = width;
+        bound.h = height;
+
+        if(bound.h < Size * 6){
+            bound.h = Size * 6;
+        }
+    }
+
+    @Override
+    public void move(int x, int y) {
+
+    }
+
     private void CheckDraw(bounds bounds, int mode) {
-        if(Mouse.IsInArea(new bounds(bounds.x, bounds.y, bounds.x + bounds.w, bounds.y + bounds.h)) && (canUnFocus() || sel == mode)) {
+        boolean draw = false;
+
+        if (Mouse.IsInArea(new bounds(bounds.x, bounds.y, bounds.x + bounds.w, bounds.y + bounds.h)) && (canUnFocus() || sel == mode)) {
             if (Mouse.IsHeld(MouseUtil.LEFT) || Mouse.IsHeld(MouseUtil.RIGHT)) {
                 Color c = palette.getPalette(v.PalLine, v.PalSelcted);
-                int pal = palette.GetGrid((int) (((float)Mouse.GetPos().x - bounds.x) / bounds.w * 256));
+                int pal = palette.GetGrid((int) (((float) Mouse.GetPos().x - bounds.x) / bounds.w * 256));
 
                 switch (mode) {
                     case 0:
@@ -154,21 +183,18 @@ public class palChange implements Window {
 
                 palette.setPalette(v.PalLine, v.PalSelcted, c);
                 repaint();
-                v.TileRender = -1;
-                SP.startTileRender();
+                tileLoader.startTileRender();
 
             } else {
                 sel = mode;
-                if(draw){
-                    draw = false;
-                    repaint();
-                }
-            }
-        }  else {
-            if(!draw){
                 draw = true;
-                repaint();
             }
+        } else {
+            draw = true;
+        }
+
+        if(draw){
+            repaint();
         }
     }
 

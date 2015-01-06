@@ -1,5 +1,6 @@
 package gs.soni.plane.util;
 
+import gs.app.lib.application.App;
 import gs.app.lib.util.Browser;
 import gs.soni.plane.SP;
 import gs.soni.plane.project.Save;
@@ -12,31 +13,30 @@ import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
 public class defActList {
-    public static final int EXIT =       0;
-    public static final int ABOUT =      1;
-    public static final int SAVE =       2;
-    public static final int EDIT =       3;
-    public static final int OPEN =       4;
-    public static final int RELOAD =     5;
-    public static final int CHPLSZ =    10;
-    public static final int DRHIPLANE = 11;
-    public static final int DRLOPLANE = 12;
-    public static final int PWIDTHP =   13;
-    public static final int PWIDTHM =   14;
-    public static final int PHEIGHTP =  15;
-    public static final int PHEIGHTM =  16;
-    public static final int HILOPL =    20;
-    public static final int FLIPX =     21;
-    public static final int FLIPY =     22;
-    public static final int PLINEP =    23;
-    public static final int PLINEM =    24;
-    public static final int DESEL =     25;
-    public static final int TILINP =    26;
-    public static final int TILINM =    27;
-    public static final int FILLSEL =   28;
-    public static final int CLEARSEL =  29;
-    public static final int INSERTSEL = 30;
-    public static final int REMOVESEL = 31;
+    public static final int EXIT =         0;
+    public static final int ABOUT =        1;
+    public static final int SAVE =         2;
+    public static final int EDIT =         3;
+    public static final int OPEN =         4;
+    public static final int RELOAD =       5;
+
+    public static final int PWIDTHP =     13;
+    public static final int PWIDTHM =     14;
+    public static final int PHEIGHTP =    15;
+    public static final int PHEIGHTM =    16;
+
+    public static final int HILOPL =      20;
+    public static final int FLIPX =       21;
+    public static final int FLIPY =       22;
+    public static final int PLINEP =      23;
+    public static final int PLINEM =      24;
+    public static final int DESEL =       25;
+    public static final int TILINP =      26;
+    public static final int TILINM =      27;
+    public static final int FILLSEL =     28;
+    public static final int CLEARSEL =    29;
+    public static final int INSERTSEL =   30;
+    public static final int REMOVESEL =   31;
 
     public static ActionListener Get(int id){
         switch (id){
@@ -92,34 +92,8 @@ public class defActList {
                         SP.SetNormalTitle();
                         SP.getWM().destroy();
                         SP.ClearData();
-                        SP.CreateGUI();
+                        SP.FixGUI();
                         SP.CreateMainMenu();
-                    }
-                };
-
-            case CHPLSZ:
-                return new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        PlaneSize();
-                    }
-                };
-
-            case DRHIPLANE:
-                return new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        v.DrawHighPlane ^= true;
-                        SP.repaintLater();
-                    }
-                };
-
-            case DRLOPLANE:
-                return new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        v.DrawLowPlane ^= true;
-                        SP.repaintLater();
                     }
                 };
 
@@ -137,13 +111,7 @@ public class defActList {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         v.mapSize.x --;
-                        mappings.Adjust();
-                        v.SelBounds = null;
-                        v.setBounds();
-                        if(Event.SelMenu) {
-                            Event.projectMenu();
-                        }
-                        SP.repaintLater();
+                        MapSize();
                     }
                 };
 
@@ -152,13 +120,7 @@ public class defActList {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         v.mapSize.y ++;
-                        mappings.Adjust();
-                        v.SelBounds = null;
-                        v.setBounds();
-                        if(Event.SelMenu) {
-                            Event.projectMenu();
-                        }
-                        SP.repaintLater();
+                        MapSize();
                     }
                 };
 
@@ -167,13 +129,7 @@ public class defActList {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         v.mapSize.y --;
-                        mappings.Adjust();
-                        v.SelBounds = null;
-                        v.setBounds();
-                        if(Event.SelMenu) {
-                            Event.projectMenu();
-                        }
-                        SP.repaintLater();
+                        MapSize();
                     }
                 };
 
@@ -227,7 +183,7 @@ public class defActList {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         v.SelBounds = null;
-                        Event.projectMenu();
+                        App.getJFrame().getMenuBar().getMenu(defMenu.MENU_SEL).setEnabled(false);
                         SP.repaintLater();
                     }
                 };
@@ -309,16 +265,8 @@ public class defActList {
     public static void MapSize() {
         mappings.Adjust();
         v.SelBounds = null;
-        v.setBounds();
-        if(Event.SelMenu) {
-            Event.projectMenu();
-        }
-        SP.repaintLater();
-    }
+        App.getJFrame().getMenuBar().getMenu(defMenu.MENU_SEL).setEnabled(false);
 
-    public static void PlaneSize() {
-        v.PlaneMode = (v.PlaneMode + 1) % 3;
-        v.setBounds();
         SP.repaintLater();
     }
 }

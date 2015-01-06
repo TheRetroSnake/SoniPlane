@@ -6,6 +6,7 @@ import gs.app.lib.gfx.Sprite;
 import gs.app.lib.gfx.gfx;
 import gs.app.lib.math.bounds;
 import gs.soni.plane.SP;
+import gs.soni.plane.util.CursorList;
 import gs.soni.plane.util.Logicable;
 import gs.soni.plane.util.Style;
 import gs.soni.plane.util.StyleItem;
@@ -30,7 +31,9 @@ public class loading implements Window, PanelListener {
     }
 
     @Override
-    public void draw(Graphics g) {
+    public void draw(Graphics g, bounds b, float a) {
+        SP.getWM().movePanel(this, hasDebug() ? 1 : 0);
+
         if (s != null) {
             g.drawImage(s);
 
@@ -42,8 +45,20 @@ public class loading implements Window, PanelListener {
         }
     }
 
+    private boolean hasDebug() {
+        for(PanelManager p : SP.getWM().getPanels()){
+            if(p.getWindow() instanceof debug){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     @Override
     public void logic() {
+        SP.getWM().getPanelManager(this).toCursor(CursorList.get(CursorList.BUSY_CURSOR));
+
         if (s == null) {
             s = new Sprite(gfx.getImage(v.LaunchAdr +"/res/load.png"));
             s.setSize(60, 60);
@@ -65,6 +80,7 @@ public class loading implements Window, PanelListener {
             s.setAlpha(alpha);
 
             if (alpha < 0f) {
+                s.setAlpha(0f);
                 SP.getWM().rmvWindow(this);
                 SP.SetNormalTitle();
                 repaintAll();
@@ -91,6 +107,16 @@ public class loading implements Window, PanelListener {
     @Override
     public boolean drawBound() {
         return false;
+    }
+
+    @Override
+    public boolean cursorOverride() {
+        return true;
+    }
+
+    @Override
+    public void defaultSize() {
+
     }
 
     private void repaint() {

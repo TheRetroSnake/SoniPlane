@@ -18,30 +18,50 @@ import java.io.FileNotFoundException;
 
 public class debug implements Window, PanelListener {
     private int draw = 0;
-    
+    private long last = 0;
+
     @Override
     public bounds getBounds() {
         return new bounds(0, 1, App.GetBounds().w, App.GetBounds().h);
     }
 
     @Override
-    public void draw(Graphics g) {
+    public void draw(Graphics g, bounds b, float a) {
+        SP.getWM().movePanel(this, 0);
         DrawDebug(g, Style.GetStyle("debug"), Color.WHITE);
     }
 
     @Override
     public void logic() {
-        // cycle debug mode
+        /* cycle debug mode */
         if(Keys.isPressed(KeyUtil.F3)){
             draw ++;
             SP.getWM().getPanelManager(this).repaint();
             SP.repaintLater();
-            return;
+
+        /* redraw */
+        } else if(Keys.isPressed(KeyUtil.F4)){
+            SP.getWM().getPanelManager(this).repaint();
+            SP.repaintLater();
         }
 
-        if(draw % 4 != 0){
-            SP.getWM().getPanelManager(this).repaint();
-            SP.repaint();
+        /* check if we need to redraw for autosave */
+        if(draw == 1) {
+            long time = -(System.currentTimeMillis() - v.LastSave - v.AutoSave);
+            if (time > 60000) {
+                if(last != (int)(time / 60000)){
+                    last = time / 60000;
+                    SP.getWM().getPanelManager(this).repaint();
+                    SP.repaintLater();
+                }
+
+            } else if (time >= 0) {
+                if(last != time){
+                    last = time;
+                    SP.getWM().getPanelManager(this).repaint();
+                    SP.repaintLater();
+                }
+            }
         }
     }
 
@@ -61,14 +81,24 @@ public class debug implements Window, PanelListener {
         return false;
     }
 
+    @Override
+    public boolean cursorOverride() {
+        return false;
+    }
+
+    @Override
+    public void defaultSize() {
+
+    }
+
     private void DrawDebug(Graphics g, StyleItem s, Color color) {
         try {
             g.setColor(color);
             Graphics.setFont(s.GetFont());
             String[] p = new String(file.readFile(v.project)).split("\n");
 
-            switch (draw % 4) {
-                case 0:
+            switch (draw % 5) {
+                case 1:
                     DrawDebug(g, "Mappings width: "+ v.mapSize.x +" - Mappings height: "+ v.mapSize.y +
                             " Entries: "+ mappings.GetMapArray().length, 0, 0, 15);
                     DrawDebug(g, "Selected palette: "+ v.PalLine +":"+ v.PalSelcted, 0, 15, 15);
@@ -79,9 +109,11 @@ public class debug implements Window, PanelListener {
                     if(-(System.currentTimeMillis() - v.LastSave - v.AutoSave) > 60000){
                         DrawDebug(g, "Autosave in: "+ (-(System.currentTimeMillis() - v.LastSave - v.AutoSave) / 60000) +
                                 " minutes", 0, 60, 15);
+
                     } else if(-(System.currentTimeMillis() - v.LastSave - v.AutoSave) >= 0){
                         DrawDebug(g, "Autosave in: "+ (-(System.currentTimeMillis() - v.LastSave - v.AutoSave) / 1000) +
                                 " seconds", 0, 60, 15);
+
                     } else {
                         DrawDebug(g, "Autosave in: Never", 0, 60, 15);
                     }
@@ -104,9 +136,11 @@ public class debug implements Window, PanelListener {
                             GetSelData(g);
                         }
                     }
+
+                    DrawDebugNormal(g);
                     break;
 
-                case 1:
+                case 2:
                     DrawDebug(g, "Project name: "+ project.GetField("name", p), 0, 0, 15);
 
                     DrawDebug(g, "Project file: "+ v.project, 0, 15, 15);
@@ -114,11 +148,9 @@ public class debug implements Window, PanelListener {
                     DrawDebug(g, "Autosave delay: "+ v.AutoSave +"ms", 0, 45, 15);
                     DrawDebug(g, "Last autosave: "+ (v.LastSave / 1000) +" unix", 0, 60, 15);
                     DrawDebug(g, "TileDisplay tiles drawn: "+ tileDisp.drawn, 0, 75, 15);
-
-                    DrawDebugNormal(g);
                     break;
 
-                case 2:
+                case 3:
                     DrawDebug(g, "Palette file: "+ project.GetField("palette file", p), 0, 0, 15);
                     DrawDebug(g, "Palette type: "+ project.GetField("name", new String(file.readFile(v.LaunchAdr +"/modules/palette/" +
                             project.GetField("palette type", p) + ".txt")).split("\n")), 0, 15, 15);
@@ -127,11 +159,9 @@ public class debug implements Window, PanelListener {
                             gs.soni.plane.project.palette.getPalette()[0].length, 0, 30, 15);
 
                     DrawDebug(g, "Transparent: "+ project.GetField("trans line", p) +":" + project.GetField("trans off", p), 0, 45, 15);
-
-                    DrawDebugNormal(g);
                     break;
 
-                case 3:
+                case 4:
                     DrawDebug(g, "Art file: " + project.GetField("art file", p), 0, 0, 15);
                     DrawDebug(g, "Art type: "+ project.GetField("name", new String(file.readFile(v.LaunchAdr +"/modules/tile/"+
                             project.GetField("art type", p) + ".txt")).split("\n")), 0, 15, 15);
@@ -140,11 +170,9 @@ public class debug implements Window, PanelListener {
                             v.OS +"/" + project.GetField("art compression", p) + ".txt")).split("\n")), 0, 30, 15);
 
                     DrawDebug(g, "Tile amount: " + tileLoader.GetTileArray().length, 0, 45, 15);
-
-                    DrawDebugNormal(g);
                     break;
 
-                case 4:
+                case 5:
                     DrawDebug(g, "Mappings file: " + project.GetField("map file", p), 0, 0, 15);
                     DrawDebug(g, "Mappings type: " + project.GetField("name", new String(file.readFile(v.LaunchAdr +"/modules/map/" +
                             project.GetField("map type", p) + ".txt")).split("\n")), 0, 15, 15);
@@ -154,8 +182,9 @@ public class debug implements Window, PanelListener {
 
                     DrawDebug(g, "Mappings width: "+ v.mapSize.x +" - Mappings height: "+ v.mapSize.y, 0, 45, 15);
                     DrawDebug(g, "Mappings offset: " + project.GetField("map offset", p), 0, 60, 15);
+                    break;
 
-                    DrawDebugNormal(g);
+                case 0:
                     break;
 
                 default:
@@ -220,26 +249,14 @@ public class debug implements Window, PanelListener {
 
         Sprite spr = new Sprite();
         spr.setBounds(X, Y, Width, Height);
-        spr.setColor(new Color(0, 0, 0, 0.5f));
+        spr.setColor(Color.BLACK);
         g.fillRect(spr);
 
         g.drawText(text, X, Y);
     }
 
     private void DrawDebugNormal(Graphics g) throws FileNotFoundException {
-        int mem =  (int)(((double)Runtime.getRuntime().freeMemory() / (double)Runtime.getRuntime().totalMemory()) * 100f);
-        int mem2 = (int)(((double)Runtime.getRuntime().totalMemory() / (double)Runtime.getRuntime().maxMemory()) * 100f);
-
-        DrawDebug(g, "Allocated: " + mem2 + "% " + Runtime.getRuntime().totalMemory() / 1024 + "KB/" +
-                Runtime.getRuntime().maxMemory() / 1024 + "KB", 0, App.GetBounds().h - 14, 15);
-
-        DrawDebug(g, "Free memory: " + mem + "% " + Runtime.getRuntime().freeMemory() / 1024 + "KB/" +
-                Runtime.getRuntime().totalMemory() / 1024 + "KB", 0, App.GetBounds().h - 29, 15);
-
-        DrawDebug(g, "Java version: "+ System.getProperty("java.version") +" "+ System.getProperty("sun.arch.data.model") +
-                "bit - Program version: "+ v.version, 0, App.GetBounds().h - 44, 15);
-
-        DrawDebug(g, "(c) Green Snake (Natsumi) 2014", 0, App.GetBounds().h - 59, 15);
+        DrawDebug(g, "(c) Green Snake (Natsumi) 2014", 0, App.GetBounds().h - 16, 15);
     }
 
     @Override

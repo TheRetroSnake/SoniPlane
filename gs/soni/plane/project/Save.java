@@ -3,16 +3,25 @@ package gs.soni.plane.project;
 import gs.soni.plane.util.file;
 import gs.soni.plane.v;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 
 public class Save implements Runnable {
     private final String name;
     private final boolean autoSave;
+    private ActionListener act;
 
     public Save(String name, boolean isAutoSve) {
         this.name = v.LaunchAdr +"/autosave/"+ name;
         autoSave = isAutoSve;
+    }
+
+    public Save(String name, boolean isAutoSve, ActionListener a) {
+        this.name = v.LaunchAdr +"/autosave/"+ name;
+        autoSave = isAutoSve;
+        act = a;
     }
 
     @Override
@@ -34,6 +43,10 @@ public class Save implements Runnable {
                 e.printStackTrace();
             }
         }
+
+        if(act != null) {
+            act.actionPerformed(null);
+        }
     }
 
     private void BackUp() {
@@ -43,13 +56,14 @@ public class Save implements Runnable {
                 project.SetField("map height", v.mapSize.y + "",
                 project.SetField("map width", v.mapSize.x + "",
                 project.SetField("palette file", name + "/pal",
-                project.SetField("map file", name + "/map", project.SetField("art file", name + "/art",
+                project.SetField("map file", name + "/map",
+                project.SetField("art file", name + "/art",
                     new String(file.readFile(v.project)).split("\n"))))))), "\n");
 
             String[] d = new String(file.readFile(v.project)).split("\n");
-            file.copyfile(project.GetField("palette file", d), name +"/pal");
-            file.copyfile(project.GetField("map file", d), name +"/map");
-            file.copyfile(project.GetField("art file", d), name +"/art");
+            file.copyfile(project.GetField("palette file", d), name + "/pal");
+            file.copyfile(project.GetField("map file", d), name + "/map");
+            file.copyfile(project.GetField("art file", d), name + "/art");
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -63,7 +77,8 @@ public class Save implements Runnable {
                 project.SetField("map height", v.mapSize.y + "",
                 project.SetField("map width", v.mapSize.x + "",
                 project.SetField("palette file", name + "/pal",
-                project.SetField("map file", name + "/map", project.SetField("art file", name + "/art",
+                project.SetField("map file", name + "/map",
+                project.SetField("art file", name +"/art",
                     new String(file.readFile(v.project)).split("\n"))))))), "\n");
 
             String[] d = new String(file.readFile(name +".SPP")).split("\n");

@@ -3,20 +3,17 @@ package gs.soni.plane;
 import gs.app.lib.application.App;
 import gs.app.lib.application.AppRun;
 import gs.app.lib.gfx.Graphics;
-import gs.app.lib.gfx.Sprite;
 import gs.app.lib.gfx.gfx;
 import gs.app.lib.math.bounds;
 import gs.app.lib.util.*;
 import gs.soni.plane.draw.*;
 import gs.soni.plane.menu.menu;
 import gs.soni.plane.project.*;
-import gs.soni.plane.project.palette;
 import gs.soni.plane.util.*;
 import gs.soni.plane.util.Event;
 import gs.soni.plane.web.UpdateChecker;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -92,10 +89,13 @@ public class SP extends AppRun {
     public void create(){
         /* get launching address */
         v.LaunchAdr = FileUtil.getJarFolder().replace("\\", "/");
+        /* set the cursor to BUSY cursor while loading */
+        App.getJPanel().setCursor(CursorList.get(CursorList.BUSY_CURSOR));
         /* does the folder contain SoniPlane.jar (aka make sure we don't open in C:/Windows/System32 or similar incorrect folders */
         if(file.IsRightFolder(v.LaunchAdr)) {
-            /* save preferences address to memory */
+            /* save preferences address to memory and render misc images */
             v.prefs = v.LaunchAdr +"/prefs.txt";
+            v.renderImages();
             /* create queues */
             DrawQueue = new ArrayList<Drawable>();
             LogicList = new ArrayList<Logicable>();
@@ -172,6 +172,14 @@ public class SP extends AppRun {
                     runlogic = false;
                 }
             }, 1, 66);
+
+            /* set the cursor to WAIT cursor in the first logic cycle */
+            new Timer("Change mouse pointer").schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    App.getJPanel().setCursor(CursorList.get(CursorList.WAIT_CURSOR));
+                }
+            }, 60);
         }
     }
 
@@ -614,10 +622,29 @@ public class SP extends AppRun {
         MenuBar m = new MenuBar();
 
         m.add(defMenu.GetMenu(defMenu.MENU_FILE));
+        m.add(defMenu.GetMenu(defMenu.MENU_PLANE));
+        m.add(defMenu.GetMenu(defMenu.MENU_SETT));
+        m.add(defMenu.GetMenu(defMenu.MENU_SEL));
+        m.add(defMenu.GetMenu(defMenu.MENU_STATE));
         m.add(defMenu.GetMenu(defMenu.MENU_HELP));
 
         App.getJFrame().setMenuBar(m);
+        FixGUI();
         ResizePrefs();
+    }
+
+    public static void FixGUI() {
+        MenuBar m = App.getJFrame().getMenuBar();
+        m.getMenu(defMenu.MENU_SETT).setEnabled(false);
+        m.getMenu(defMenu.MENU_SEL).setEnabled(false);
+        m.getMenu(defMenu.MENU_PLANE).setEnabled(false);
+        m.getMenu(defMenu.MENU_STATE).setEnabled(false);
+
+        Menu me = m.getMenu(defMenu.MENU_FILE);
+        me.getItem(0).setEnabled(false);
+        me.getItem(1).setEnabled(false);
+        me.getItem(2).setEnabled(false);
+        me.getItem(3).setEnabled(false);
     }
 
     private static void ResizePrefs() {
@@ -731,12 +758,8 @@ public class SP extends AppRun {
             resizePref = false;
         }
 
-        if(v.PlaneBounds != null) {
-            v.setPlaneBounds();
-            v.setTileListBounds();
-            v.SetPalListBounds();
-            v.SetPalChgBounds();
-            v.SetTilEdBounds();
+        if(LogicList != null && getWM() != null){
+            getWM().resize(width, height);
         }
     }
 
@@ -821,180 +844,10 @@ public class SP extends AppRun {
         return MenuList;
     }
 
-    public static void startTileRender() {
-        new Thread(new TileRenderer(), "TileRenderer").start();
-    }
-
     private void CheckControl() {
-        // change tile pallet line
-        if(Keys.isPressed(KeyUtil.TAB)){
-            v.PalLine ++;
-            if(v.PalLine >= palette.getPalette().length){
-                v.PalLine = 0;
-            }
-
-        } else if(Keys.isHeld(KeyUtil.CONTROL)){
-            // save
-            if(Keys.isPressed(KeyUtil.S)) {
-                Event.SetEvent(Event.ReturnEvent(Event.E_SAVE, Event.EP_MAX, ""));
-
-                // reload
-            } else if(Keys.isPressed(KeyUtil.R)) {
-                Event.SetEvent(Event.ReturnEvent(Event.E_PROJ_LOAD_, Event.EP_MAX, ""));
-
-                // edit configuration
-            } else if(Keys.isPressed(KeyUtil.E)) {
-                Event.SetEvent(Event.ReturnEvent(Event.E_CONF, Event.EP_MAX, ""));
-
-                // back to menu
-            } else if(Keys.isPressed(KeyUtil.O)) {
-                Event.SetEvent(Event.ReturnEvent(Event.E_MENU, Event.EP_MAX, ""));
-
-                // draw high
-            } else if(Keys.isPressed(KeyUtil.Q)) {
-                v.DrawHighPlane ^= true;
-                SP.repaintLater();
-
-                // draw low
-            } else if(Keys.isPressed(KeyUtil.W)) {
-                v.DrawLowPlane ^= true;
-                SP.repaintLater();
-
-                // Plane size
-            } else if(Keys.isPressed(KeyUtil.T)) {
-                        defActList.PlaneSize();
-
-            } else if(Keys.isPressed(KeyUtil.F9)){
-                ResetProgram();
-            }
-
-            // null selection
-        } else if(Keys.isPressed(KeyUtil.T)){
-            v.SelBounds = null;
-            Event.projectMenu();
-
-            // increase selected tile index
-        } else if(Keys.isPressed(KeyUtil.A)){
-            v.TileSelected ++;
-            repaintLater();
-
-            // decrease selected tile index
-        } else if(Keys.isPressed(KeyUtil.Z)){
-            v.TileSelected --;
-            repaintLater();
-
-            // increase selected palette index
-        } else if(Keys.isPressed(KeyUtil.S)){
-            v.PalSelcted ++;
-            if(v.PalSelcted >= palette.getPalette()[v.PalLine].length){
-                v.PalSelcted = 0;
-            }
-            repaintLater();
-
-            // decrease selected palette index
-        } else if(Keys.isPressed(KeyUtil.X)){
-            v.PalSelcted --;
-            if(v.PalSelcted < 0){
-                v.PalSelcted = palette.getPalette()[v.PalLine].length - 1;
-            }
-            repaintLater();
-
-            // plane x ++
-        } else if(Keys.isPressed(KeyUtil.NUM1)) {
-            v.mapSize.x ++;
-            defActList.MapSize();
-            repaintLater();
-
-            // plane x --
-        } else if(Keys.isPressed(KeyUtil.NUM2)) {
-            v.mapSize.x --;
-            defActList.MapSize();
-            repaintLater();
-
-            // plane y ++
-        } else if(Keys.isPressed(KeyUtil.NUM3)) {
-            v.mapSize.y ++;
-            defActList.MapSize();
-
-            // plane y --
-        } else if(Keys.isPressed(KeyUtil.NUM4)) {
-            v.mapSize.y --;
-            defActList.MapSize();
-
-            // FlipY
-        } else if(v.SelBounds != null) {
-
-            if (Keys.isPressed(KeyUtil.F)) {
-                mappings.TileFlip(true, false);
-                repaintLater();
-
-                // FlipX
-            } else if (Keys.isPressed(KeyUtil.V)) {
-                mappings.TileFlip(false, true);
-                SP.repaintLater();
-
-                // selection palette line increase
-            } else if (Keys.isPressed(KeyUtil.G)) {
-                mappings.PalIndex(1);
-                repaintLater();
-
-                // selection palette line decrease
-            } else if (Keys.isPressed(KeyUtil.B)) {
-                mappings.PalIndex(-1);
-                repaintLater();
-
-                // increase selection tile index
-            } else if (Keys.isPressed(KeyUtil.H)) {
-                mappings.TileIndex(1);
-                repaintLater();
-
-                // decrease selection tile index
-            } else if (Keys.isPressed(KeyUtil.N)) {
-                mappings.TileIndex(-1);
-                repaintLater();
-
-                // shift selection
-            } else if (Keys.isPressed(KeyUtil.I) || Keys.isPressed(KeyUtil.UP_ARROW)) {
-                mappings.ShiftMap(0, -1);
-                SP.repaintLater();
-
-                // shift selection
-            } else if (Keys.isPressed(KeyUtil.K) || Keys.isPressed(KeyUtil.DOWN_ARROW)) {
-                mappings.ShiftMap(0, 1);
-                SP.repaintLater();
-
-                // shift selection
-            } else if (Keys.isPressed(KeyUtil.J) || Keys.isPressed(KeyUtil.LEFT_ARROW)) {
-                mappings.ShiftMap(-1, 0);
-                SP.repaintLater();
-
-                // shift selection
-            } else if (Keys.isPressed(KeyUtil.L) || Keys.isPressed(KeyUtil.RIGHT_ARROW)) {
-                mappings.ShiftMap(1, 0);
-                SP.repaintLater();
-
-                // remove map
-            } else if(Keys.isPressed(KeyUtil.Q)){
-                mappings.Remove();
-                Event.projectMenu();
-                repaintLater();
-
-                // clear selection
-            } else if(Keys.isPressed(KeyUtil.W)) {
-                mappings.Delete(v.SelBounds);
-                repaintLater();
-
-                // insert tiles
-            } else if(Keys.isPressed(KeyUtil.E)) {
-                mappings.Insert();
-                repaintLater();
-
-                // fill selection
-            } else if(Keys.isPressed(KeyUtil.R)) {
-                mappings.Fill(v.TileSelected, 0);
-                repaintLater();
-
-            }
+        /* reset program */
+        if (Keys.isHeld(KeyUtil.CONTROL) && Keys.isPressed(KeyUtil.ESCAPE)) {
+            ResetProgram();
         }
     }
 

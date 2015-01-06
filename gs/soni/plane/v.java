@@ -1,10 +1,13 @@
 package gs.soni.plane;
 
-import gs.app.lib.application.App;
 import gs.app.lib.gfx.Graphics;
 import gs.app.lib.gfx.Sprite;
+import gs.app.lib.gfx.gfx;
 import gs.app.lib.math.bounds;
-import gs.soni.plane.project.tileLoader;
+import gs.soni.plane.util.Colors;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class v {
     /* flag to switch to testing mode or off. Used to not redirect output to run.txt when testing */
@@ -15,7 +18,7 @@ public class v {
      * Used to convenience and future possibility of making preferences read from universal address */
     public static String prefs;
     /* version number constant */
-    public static final String version =     "1.0.4.1";
+    public static final String version =     "1.1";
     /* project version constant */
     public static final String projversion = "1.0";
     /* preferences version constant */
@@ -30,9 +33,9 @@ public class v {
     public static boolean BlockControls = false;
     /* is used to check if mouse buttons were clicked */
     public static boolean IsClicked =     false;
-    /* check if high plane will be drawn */
+    /* check if high plane will be drawn (soon to be obsolete) */
     public static boolean DrawHighPlane =  true;
-    /* check if low plane will be drawn */
+    /* check if low plane will be drawn (soon to be obsolete) */
     public static boolean DrawLowPlane =   true;
     /* check to set BlockControls flag to false after executing all logic */
     public static boolean UnlockEndFrame = true;
@@ -59,10 +62,6 @@ public class v {
     /* increment to fille using selection fill */
     public static int FillIncr =             0;
 
-    /* offset of tile renderer */
-    public static int TileRender =           Integer.MAX_VALUE;
-    /* mode of how the planes are arranged */
-    public static int PlaneMode =            0;
     /* palette line offset */
     public static int LineOff =              0;
     /* minimum and maximum priority for rendering */
@@ -71,12 +70,7 @@ public class v {
     /* program mode */
     public static int mode =                 0;
 
-    /* bounds objects for different editors (obsolete soon) */
-    public static bounds PlaneBounds;
-    public static bounds TileBounds;
-    public static bounds PalBounds;
-    public static bounds PalChgBounds;
-    public static bounds TilEdBounds;
+    /* mappings size */
     public static bounds mapSize;
 
     /* bounds for plane selection (soon to be obsolete) */
@@ -95,60 +89,36 @@ public class v {
     /* max size of backup */
     public static long MaxASSize;
 
-    /* soon to be obsolete methods of calculating right sizes for plane editing windows */
-    public static void setPlaneBounds() {
-        if(PlaneMode == 0) {
-            int x = App.GetBounds().w - 4 - (mapSize.x * tileLoader.GetWidth()),
-                    y = App.GetBounds().h - 4 - (mapSize.y * tileLoader.GetHeight());
-            PlaneBounds = new bounds(x, y, App.GetBounds().w - 4 - x, App.GetBounds().h - 4 - y);
+    /* few images used in Windows */
+    public static BufferedImage[] corner;
+    public static BufferedImage[] slope;
 
-        } else if(PlaneMode == 1) {
-            PlaneBounds = new bounds(4, App.GetBounds().h - (mapSize.y * tileLoader.GetHeight() * 2) - (8 * (tileLoader.GetHeight() + 2)) -
-                    172, (mapSize.x * tileLoader.GetWidth() * 2), (mapSize.y * tileLoader.GetHeight() * 2));
+    /* method to render special images used in the program */
+    public static void renderImages(){
+        corner = new BufferedImage[]{
+                imgReplace(gfx.getImage(v.LaunchAdr +"/res/window-corner.png"), Color.WHITE, Colors.GetColor("window-normal")),
+                imgReplace(gfx.getImage(v.LaunchAdr +"/res/window-corner.png"), Color.WHITE, Colors.GetColor("window-focus")),
+                imgReplace(gfx.getImage(v.LaunchAdr +"/res/window-corner.png"), Color.WHITE, Colors.GetColor("window-normal2")),
+                imgReplace(gfx.getImage(v.LaunchAdr +"/res/window-corner.png"), Color.WHITE, Colors.GetColor("window-focus2")),};
 
-        } else {
-            PlaneBounds = new bounds(4, App.GetBounds().h - (mapSize.y * tileLoader.GetHeight() * 4) - (8 * (tileLoader.GetHeight() + 2)) -
-                    172, (mapSize.x * tileLoader.GetWidth() * 4), (mapSize.y * tileLoader.GetHeight() * 4));
-        }
+        slope = new BufferedImage[]{
+                imgReplace(gfx.getImage(v.LaunchAdr +"/res/window-end.png"), Color.WHITE, Colors.GetColor("window-normal")),
+                imgReplace(gfx.getImage(v.LaunchAdr +"/res/window-end.png"), Color.WHITE, Colors.GetColor("window-focus")),};
     }
 
-    public static void setTileListBounds() {
-        if(PlaneMode == 0) {
-            TileBounds = new bounds(4, PlaneBounds.y, PlaneBounds.x - 10, PlaneBounds.h);
-
-        } else {
-            int y = (8 * (tileLoader.GetHeight() + 2));
-            TileBounds = new bounds(4, (App.GetBounds().h - 4) - y, App.GetBounds().w - 8, y);
+    /* method used by above to replace each instance of color to another color */
+    private static BufferedImage imgReplace(BufferedImage image, Color from, Color to) {
+        /* loop for each pixel of the image */
+        for(int y = 0;y < image.getHeight();y ++){
+            for(int x = 0;x < image.getWidth();x ++){
+                /* if RGB values match, replace with new RGB value */
+                if(image.getRGB(x, y) == from.getRGB()){
+                    image.setRGB(x, y, to.getRGB());
+                }
+            }
         }
-    }
 
-    public static void SetPalListBounds() {
-        if(PlaneMode == 0) {
-            PalBounds = new bounds(PlaneBounds.x, PlaneBounds.y - 162, PlaneBounds.w, 156);
-
-        } else {
-            PalBounds = new bounds((App.GetBounds().w / 2) + 3, TileBounds.y - 162, (App.GetBounds().w / 2) - 7, 156);
-        }
-    }
-
-    public static void SetPalChgBounds() {
-        if(PlaneMode == 0) {
-            PalChgBounds = new bounds(TileBounds.x, TileBounds.y - 162, TileBounds.w, 156);
-
-        } else {
-            PalChgBounds = new bounds(4, TileBounds.y - 162, (App.GetBounds().w / 2) - 7, 156);
-        }
-    }
-
-    public static void SetTilEdBounds() {
-        if(PlaneMode == 0) {
-            int y = PalChgBounds.y - 6 - (tileLoader.GetHeight() * 16);
-            TilEdBounds = new bounds(PalChgBounds.x, y, tileLoader.GetWidth() * 16, PalChgBounds.y - 6 - y);
-
-        } else {
-            int y = tileLoader.GetHeight() * 16;
-            TilEdBounds = new bounds(PlaneBounds.w + 12, PalChgBounds.y - 6 - y, (tileLoader.GetWidth() * 16) + 6, y);
-        }
+        return image;
     }
 
     /* methods to draw boundaries around area */
@@ -185,24 +155,5 @@ public class v {
         g.fillRect(s);
         s.setBounds(bounds.x + bounds.w + Off, bounds.y + bounds.h + Off, -thick, -bounds.h - (Off * 2));
         g.fillRect(s);
-    }
-
-    /* soon to be obsolete method to calculate plane size multiplier */
-    public static int GetSizeMultiplier() {
-        int mul = 1;
-
-        if(v.PlaneMode != 0){
-            mul = v.PlaneMode * 2;
-        }
-        return mul;
-    }
-
-    /* soon to be obsolete method to set boundaries for plane editing windows */
-    public static void setBounds() {
-        setPlaneBounds();
-        setTileListBounds();
-        SetPalListBounds();
-        SetPalChgBounds();
-        SetTilEdBounds();
     }
 }

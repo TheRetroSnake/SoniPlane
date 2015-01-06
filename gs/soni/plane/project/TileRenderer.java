@@ -1,25 +1,25 @@
 package gs.soni.plane.project;
 
 import gs.soni.plane.SP;
-import gs.soni.plane.v;
 
-public class TileRenderer implements Runnable{
+public class TileRenderer implements Runnable {
+    /* offset for tileRenderer */
+    private int off = 0;
+
     @Override
     public void run() {
-        if (v.TileRender == -1) {
-            tileLoader.renderTrans();
-            v.TileRender ++;
-        }
+        /* render transparent */
+        tileLoader.renderTrans();
 
-        while (v.TileRender < tileLoader.GetTextureAmount(0)) {
-            if(v.TileRender == -1){
-                return;
-            }
-
-            tileLoader.render(v.TileRender);
-            v.TileRender ++;
+        /* loop until all done */
+        while (off < tileLoader.GetTextureAmount(0)) {
+            /* render next tile */
+            tileLoader.render(off);
+            off ++;
+            /* repaint all windows */
             SP.getWM().repaintAll();
 
+            /* delay some time to not overload CPU */
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {

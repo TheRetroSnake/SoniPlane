@@ -5,8 +5,10 @@ import gs.soni.plane.SP;
 import gs.soni.plane.menu.menu;
 import gs.soni.plane.project.project;
 import gs.soni.plane.util.*;
+import gs.soni.plane.util.Event;
 import gs.soni.plane.v;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,6 +39,9 @@ public class UpdateChecker implements Runnable {
             SP.GetMenuList().SetMenuText("checkupdate", "Could not check for updates");
 
         }
+
+        /* set the cursor to DEFAULT cursor when done */
+        App.getJPanel().setCursor(CursorList.get(Cursor.DEFAULT_CURSOR));
         SP.repaintLater();
     }
 
